@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# move to ./config/__mister_config
+MISTER_PROJECT_SLUG="fpga_hdmi_test_pattern"
+MISTER_PROJECT_DIR=_PROJECT
+MISTER_HOST=mister.lan

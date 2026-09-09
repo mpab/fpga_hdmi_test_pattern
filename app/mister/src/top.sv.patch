@@ -1,0 +1,62 @@
+--- mister/mister.sv-bak	2026-09-05 02:40:48.413777300 +0200
++++ /w/FPGA/EXAMPLES/hdmi_overlay/app/mister/src/top.sv	2026-09-04 20:33:35.444742600 +0200
+@@ -56,7 +56,7 @@
+ 
+ `include "build_id.v" 
+ localparam CONF_STR = {
+-	"mister;;",
++	"hdmi_overlay_mister;;",
+ 	"-;",
+ 	"O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
+ 	"O[2],TV Mode,NTSC,PAL;",
+@@ -127,7 +127,9 @@
+ wire VSync;
+ wire ce_pix;
+ wire hvcnt_atzero;
+-wire [7:0] video;
++wire [7:0] red;
++wire [7:0] green;
++wire [7:0] blue;
+ 
+ // Leave H/V sync always on. This stabilizes the video output while the core
+ // is in reset. This example releases the reset when H/V counters are at zero.
+@@ -140,20 +142,21 @@
+ mycore mycore
+ (
+ 	.clk(clk_sys),
+-	.reset(reset_core),
+-
+-	.pal(status[2]),
++	.reset(reset),
++	
+ 	.scandouble(forced_scandoubler),
+ 
+ 	.ce_pix(ce_pix),
+-	.hvcnt_atzero(hvcnt_atzero),
++  .beam_at_zero(hvcnt_atzero),
+ 
+ 	.HBlank(HBlank),
+ 	.HSync(HSync),
+ 	.VBlank(VBlank),
+ 	.VSync(VSync),
+ 
+-	.video(video)
++	.red(red),
++	.green(green),
++	.blue(blue)
+ );
+ 
+ assign CLK_VIDEO = clk_sys;
+@@ -162,9 +165,9 @@
+ assign VGA_DE = ~(HBlank | VBlank);
+ assign VGA_HS = HSync;
+ assign VGA_VS = VSync;
+-assign VGA_G  = (!col || col == 2) ? video : 8'd0;
+-assign VGA_R  = (!col || col == 1) ? video : 8'd0;
+-assign VGA_B  = (!col || col == 3) ? video : 8'd0;
++assign VGA_G  = green;
++assign VGA_R  = red;
++assign VGA_B  = blue;
+ 
+ reg  [26:0] act_cnt;
+ always @(posedge clk_sys) act_cnt <= act_cnt + 1'd1; 

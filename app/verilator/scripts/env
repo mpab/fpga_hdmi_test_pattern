@@ -1,0 +1,46 @@
+#!/usr/bin/env sh
+
+perr () { 
+    printf "\e[1m\e[31mERR: $1\e[0m"
+}
+
+pwrn () { 
+    printf "\e[1m\e[33mWRN: $1\e[0m"
+}
+
+pok () {
+    printf "\e[1m\e[32m$1\e[0m"
+}
+
+pinf () {
+	printf "\e[1m\e[36m$1\e[0m"
+}
+
+[ -z "$VERILATOR_ROOT" ] && perr "VERILATOR_ROOT undefined\n" && exit
+[ ! -d "$VERILATOR_ROOT" ] && perr "$VERILATOR_ROOT is not a folder\n" && exit
+
+[ -z "$_SDL_USE_VERSION" ] && _SDL_USE_VERSION=3 && pwrn "_SDL_USE_VERSION undefined, defaulting to '$_SDL_USE_VERSION'\n"
+
+_SDL_DIR=$"SDL${_SDL_USE_VERSION}_DIR"
+export SDL_DIR=${!_SDL_DIR}
+[ -z "$SDL_DIR" ] && perr "SDL_DIR undefined\n" && exit
+[ ! -d "$SDL_DIR" ] && perr "$SDL_DIR is not a folder\n" && exit
+
+export SIM_CFG=$"$SCRIPTS_DIR/sdl${_SDL_USE_VERSION}"
+[ -z "$SIM_CFG" ] && perr "SIM_CFG undefined\n" && exit
+[ ! -d "$SIM_CFG" ] && perr "$SIM_CFG is not a folder\n" && exit
+
+[ -z "$_BUILD_TOOL" ] && _BUILD_TOOL=cmake && pwrn "_BUILD_TOOL undefined, defaulting to '$_BUILD_TOOL'\n"
+
+BUILD_DIR=build
+
+pinf "_SDL_USE_VERSION=$_SDL_USE_VERSION\n"
+pinf "_BUILD_TOOL=$_BUILD_TOOL\n"
+pinf "BUILD_DIR=$BUILD_DIR\n"
+pinf "SIM_CFG=$SIM_CFG\n"
+pinf "$_SDL_DIR=$SDL_DIR\n"
+
+# enable if required
+# export PATH="$SDL_DIR/bin:$SDL_DIR/lib:$PATH"
+# export LD_LIBRARY_PATH="$SDL_DIR/bin:$SDL_DIR/lib:$LD_LIBRARY_PATH"
+# export DYLD_LIBRARY_PATH="$SDL_DIR/bin:$SDL_DIR/lib:$DYLD_LIBRARY_PATH"
