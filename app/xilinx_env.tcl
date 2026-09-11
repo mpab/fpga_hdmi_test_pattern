@@ -20,6 +20,10 @@ set VHDL_APP_ROOT $::env(VHDL_APP_ROOT)
 set VIVADO_PROJECT_PATH $::env(VIVADO_PROJECT_PATH)
 set VITIS_PROJECT_PATH $::env(VITIS_PROJECT_PATH)
 
+# board project specific
+# set VIVADO_APP_BOARD_PATH $::env(VIVADO_APP_BOARD_PATH)
+set XILINX_BOARD_PART_URL $::env(XILINX_BOARD_PART_URL)
+
 # derived/imputed vivado settings
 # may change depending on the project
 set VIVADO_DESIGN_WRAPPER_SLUG $::env(VIVADO_DESIGN_WRAPPER_SLUG)
@@ -33,3 +37,6 @@ set VITIS_PLATFORM $::env(VITIS_PLATFORM)
 
 set BIF_PATH $::env(BIF_PATH)
 set BIF_FILEPATH $::env(BIF_FILEPATH)
+
+# set VITIS_XILFFS_VER $::env(VITIS_XILFFS_VER)
+set VITIS_APP_TEMPLATE $::env(VITIS_APP_TEMPLATE)
