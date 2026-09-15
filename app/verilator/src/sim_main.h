@@ -1,8 +1,5 @@
 #include <_sdl.h>
-
-#include <stdio.h>
 #include <verilated.h>
-
 #include "Vsim.h"
 
 vluint64_t main_time = 0; // Current simulation time
