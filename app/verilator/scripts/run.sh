@@ -7,7 +7,7 @@ THIS_DIR="$PWD"
 OBJ_FP="$THIS_DIR/verilator/$BUILD_DIR"
 
 . "$SCRIPTS_DIR/build.sh"
-cd "$SCRIPTS_DIR/../../vhdl/src"
+cd "$SCRIPTS_DIR/../../hdl/src"
 
 if [ -f "$OBJ_FP/sim.exe" ]; then
     "$OBJ_FP/sim.exe"

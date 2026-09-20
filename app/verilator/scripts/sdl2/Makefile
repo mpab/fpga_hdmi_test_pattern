@@ -1,7 +1,9 @@
-VFLAGS = -O3 --x-assign fast --x-initial fast --noassert
-SDL_CFLAGS = `sdl2-config --cflags`
-SRC_LIBS = ../../hardware/src
-SIM_SRC = ../../src
+VFLAGS := -O3 --x-assign fast --x-initial fast --noassert
+SDL_CFLAGS := `sdl2-config --cflags`
+
+APP_PATH := $(abspath ../../../)
+HDL_SRC_PATH := "$(APP_PATH)/hdl/src"
+HDL_SIM_SRC_PATH = $(abspath ../../src)
 
 ifeq ($(OS), Windows_NT)
 	SDL_LDFLAGS = `sdl2-config --libs` -mconsole
@@ -18,18 +20,22 @@ sim: sim.exe
 %.exe: %.mk
 	make -C ${BUILD_DIR} -f V$<
 
-%.mk: ../src/%.sv
-	verilator ${VFLAGS} -Mdir ${BUILD_DIR} -I${SRC_LIBS} \
-	    -cc $< --exe ${SIM_SRC}/$(basename $@).cpp -o $(basename $@) \
+%.mk: $(HDL_SIM_SRC_PATH)/%.sv
+	verilator $(VFLAGS) -Mdir $(BUILD_DIR) -I$(HDL_SRC_PATH) \
+	    -cc $< --exe ${HDL_SIM_SRC_PATH}/$(basename $@).cpp -o $(basename $@) \
 		-CFLAGS "-std=c++17" \
 		-CFLAGS "${SDL_CFLAGS}" \
 		-CFLAGS "-D_SDL_USE_VERSION=2" \
-		-CFLAGS "-I${SIM_SRC}" \
-		-LDFLAGS "${SDL_LDFLAGS}"
+		-CFLAGS "-I$(HDL_SIM_SRC_PATH)" \
+		-CFLAGS "-I$(HDL_SRC_PATH)" \
+		-LDFLAGS "$(SDL_LDFLAGS)"
 
 all: sim
+# 	@echo APP_PATH ${APP_PATH}
+# 	@echo HDL_SRC_PATH $(HDL_SRC_PATH)
+# 	@echo HDL_SIM_SRC_PATH $(HDL_SIM_SRC_PATH)
 
 clean:
-	rm -rf ${BUILD_DIR}
+	rm -rf $(BUILD_DIR)
 
 .PHONY: all clean

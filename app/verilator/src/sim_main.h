@@ -2,13 +2,11 @@
 #include <verilated.h>
 #include "Vsim.h"
 
-vluint64_t main_time = 0; // Current simulation time
-
-double sc_time_stamp() {
-    return main_time; // Converts to double to match SystemC expectations
-}
+double sc_time_stamp();
 
 namespace sim {
+
+extern vluint64_t main_time; // Current simulation time
 
 static inline int _main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);

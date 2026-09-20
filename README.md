@@ -5,7 +5,8 @@ A simple FPGA application which displays a test pattern.
 
 <img src="./app/docs/screencap.png" width="1024" />
 
-Runs on:  
+Runs on:
+
 - MiSTer FPGA (DE10 Nano)
 - Pynq Z2
 - Verilator
@@ -109,7 +110,7 @@ _PROJECTS/hdmi_overlay_mister
 
 ## General Change Management Principles
 
-Anything under ./app is versioned.    
+Anything under ./app is versioned.  
 Anything outside of ./app is not.  
 Apart from .gitignore and README.md.
 
@@ -124,7 +125,7 @@ Apart from .gitignore and README.md.
 │   ├── pynq_z2_hw      <-- vivado project, source, scripts
 │   ├── TODO.md
 │   ├── verilator       <-- verilator project, source, scripts
-│   ├── vhdl            <-- shared FPGA application code
+│   ├── hdl             <-- shared FPGA application code
 │   ├── xilinx_env.tcl  <-- pynq_z2_env.sh -> tcl variables
 │   ├── z_turn_env.sh   <-- work-in-progress 
 │   ├── z_turn_fw       <-- work-in-progress 

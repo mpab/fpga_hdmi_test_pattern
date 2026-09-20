@@ -19,7 +19,7 @@ find_package(verilator HINTS $ENV{VERILATOR_ROOT})
 add_library(dut)
 verilate(dut
     SOURCES ../src/sim.sv
-    INCLUDE_DIRS ../../hardware/src
+    INCLUDE_DIRS ../../hdl/src
     VERILATOR_ARGS -O3 --x-assign fast --x-initial fast --noassert
 )
 

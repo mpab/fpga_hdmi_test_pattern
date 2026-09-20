@@ -17,7 +17,7 @@ if [ -f "${APPLICATIONS_QIP}" ]; then
 fi
 
 echo "" >> "${APPLICATIONS_QIP}"
-find "app/vhdl/src" -iname "*.sv" -exec echo "set_global_assignment -name SYSTEMVERILOG_FILE ../{}" \; >> "${APPLICATIONS_QIP}"
+find "app/hdl/src" -iname "*.sv" -exec echo "set_global_assignment -name SYSTEMVERILOG_FILE ../{}" \; >> "${APPLICATIONS_QIP}"
 
 if [ ! -f "${FILES_QIP}-bak" ]; then
     cp "${FILES_QIP}" "${FILES_QIP}-bak"
