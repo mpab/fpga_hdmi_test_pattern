@@ -21,12 +21,12 @@ pinf () {
 
 [ -z "$_SDL_USE_VERSION" ] && _SDL_USE_VERSION=3 && pwrn "_SDL_USE_VERSION undefined, defaulting to '$_SDL_USE_VERSION'\n"
 
-_SDL_DIR=$"SDL${_SDL_USE_VERSION}_DIR"
-export SDL_DIR=${!_SDL_DIR}
-[ -z "$SDL_DIR" ] && perr "SDL_DIR undefined\n" && exit
-[ ! -d "$SDL_DIR" ] && perr "$SDL_DIR is not a folder\n" && exit
+export SDL_DIR=$(eval "echo \$SDL${_SDL_USE_VERSION}_DIR")
+[ -z "${SDL_DIR}" ] && perr "SDL_DIR undefined\n" && exit
+[ ! -d "${SDL_DIR}" ] && perr "${SDL_DIR} is not a folder\n" && exit
 
-export SIM_CFG=$"$SCRIPTS_DIR/sdl${_SDL_USE_VERSION}"
+export SIM_CFG="$SCRIPTS_DIR/sdl${_SDL_USE_VERSION}"
+echo SIM_CFG $SIM_CFG
 [ -z "$SIM_CFG" ] && perr "SIM_CFG undefined\n" && exit
 [ ! -d "$SIM_CFG" ] && perr "$SIM_CFG is not a folder\n" && exit
 
