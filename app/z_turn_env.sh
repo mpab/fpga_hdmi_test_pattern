@@ -9,7 +9,7 @@ export VITIS_PROJECT_FOLDER="${XILINX_BOARD}_fw"
 APP_PATH="$(dirname $(dirname $(dirname $(realpath $0))))"
 export VIVADO_APP_ROOT="${APP_PATH}/${XILINX_BOARD}_hw"
 export VITIS_APP_ROOT="${APP_PATH}/${XILINX_BOARD}_fw"
-export VHDL_APP_ROOT="${APP_PATH}/hdl"
+export HDL_APP_ROOT="${APP_PATH}/hdl"
 
 APP_PARENT_PATH="$(dirname ${APP_PATH})"
 export VIVADO_PROJECT_PATH="${APP_PARENT_PATH}/${VIVADO_PROJECT_FOLDER}"

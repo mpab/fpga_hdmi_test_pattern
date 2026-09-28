@@ -19,6 +19,8 @@ module VIDEO_source #(
 
   logic [COLSPC-1:0] _red, _green, _blue;
   VIDEO_test_pattern #(
+    .COORDSPC(COORDSPC),
+    .COLSPC  (COLSPC)
   ) fg (
     .red  (_red),
     .green(_green),
