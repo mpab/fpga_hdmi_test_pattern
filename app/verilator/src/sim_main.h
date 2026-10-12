@@ -1,4 +1,4 @@
-#include <_sdl.h>
+#include "_sdl.h"
 #include <verilated.h>
 #include "Vsim.h"
 

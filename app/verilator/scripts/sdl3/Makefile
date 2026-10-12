@@ -1,9 +1,8 @@
+MAKEFILE_DIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 VFLAGS = -O3 --x-assign fast --x-initial fast --noassert
 SDL_CFLAGS = "-I${SDL3_DIR}/include"
-
-APP_PATH := $(abspath ../../../)
-HDL_SRC_PATH := "$(APP_PATH)/hdl/src"
-HDL_SIM_SRC_PATH = $(abspath ../../src)
+SRC_LIBS = $(realpath $(MAKEFILE_DIR)../../../hdl/src)
+SIM_SRC = $(realpath $(MAKEFILE_DIR)../../src)
 
 ifeq ($(OS), Windows_NT)
 	SDL_LDFLAGS = -L${SDL3_DIR}/lib -lSDL3 -mconsole
@@ -11,6 +10,7 @@ else
 	SDL_LDFLAGS = -L${SDL3_DIR}/lib -lSDL3
 endif
 
+# use build rather than obj_dir to match cmake
 ifeq ($(BUILD_DIR),)
     BUILD_DIR = "build"
 endif
@@ -20,22 +20,17 @@ sim: sim.exe
 %.exe: %.mk
 	make -C ${BUILD_DIR} -f V$<
 
-%.mk: $(HDL_SIM_SRC_PATH)/%.sv
-	verilator $(VFLAGS) -Mdir $(BUILD_DIR) -I$(HDL_SRC_PATH) \
-	    -cc $< --exe ${HDL_SIM_SRC_PATH}/$(basename $@).cpp -o $(basename $@) \
+%.mk: ${SIM_SRC}/%.sv
+	verilator ${VFLAGS} -Mdir ${BUILD_DIR} -I${SRC_LIBS} -I${SIM_SRC} \
+	    -cc $< --exe ${SIM_SRC}/$(basename $@).cpp -o $(basename $@) \
 		-CFLAGS "-std=c++17" \
 		-CFLAGS "${SDL_CFLAGS}" \
-		-CFLAGS "-D_SDL_USE_VERSION=3" \
-		-CFLAGS "-I$(HDL_SIM_SRC_PATH)" \
-		-CFLAGS "-I$(HDL_SRC_PATH)" \
-		-LDFLAGS "$(SDL_LDFLAGS)"
+		-LDFLAGS "${SDL_LDFLAGS}" \
+		-CFLAGS "-D_SDL_USE_VERSION=3"
 
 all: sim
-# 	@echo APP_PATH ${APP_PATH}
-# 	@echo HDL_SRC_PATH $(HDL_SRC_PATH)
-# 	@echo HDL_SIM_SRC_PATH $(HDL_SIM_SRC_PATH)
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf ${BUILD_DIR}
 
 .PHONY: all clean

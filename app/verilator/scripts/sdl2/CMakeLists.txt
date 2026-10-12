@@ -8,8 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(sim)
 add_compile_definitions(_SDL_USE_VERSION=2)
 
-add_executable(${PROJECT_NAME} ../src/sim.cpp)
-target_include_directories(${PROJECT_NAME} PRIVATE ../src/)
+add_executable(${PROJECT_NAME} ../../src/sim.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE ../../src/)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(${PROJECT_NAME} "-undefined dynamic_lookup")
 endif()
@@ -18,8 +18,8 @@ endif()
 find_package(verilator HINTS $ENV{VERILATOR_ROOT})
 add_library(dut)
 verilate(dut
-    SOURCES ../src/sim.sv
-    INCLUDE_DIRS ../../hdl/src
+    SOURCES ../../src/sim.sv
+    INCLUDE_DIRS ../../../hdl/src
     VERILATOR_ARGS -O3 --x-assign fast --x-initial fast --noassert
 )
 

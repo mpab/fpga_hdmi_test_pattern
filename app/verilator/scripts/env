@@ -26,7 +26,6 @@ export SDL_DIR=$(eval "echo \$SDL${_SDL_USE_VERSION}_DIR")
 [ ! -d "${SDL_DIR}" ] && perr "${SDL_DIR} is not a folder\n" && exit
 
 export SIM_CFG="$SCRIPTS_DIR/sdl${_SDL_USE_VERSION}"
-echo SIM_CFG $SIM_CFG
 [ -z "$SIM_CFG" ] && perr "SIM_CFG undefined\n" && exit
 [ ! -d "$SIM_CFG" ] && perr "$SIM_CFG is not a folder\n" && exit
 
@@ -38,7 +37,7 @@ pinf "_SDL_USE_VERSION=$_SDL_USE_VERSION\n"
 pinf "_BUILD_TOOL=$_BUILD_TOOL\n"
 pinf "BUILD_DIR=$BUILD_DIR\n"
 pinf "SIM_CFG=$SIM_CFG\n"
-pinf "$_SDL_DIR=$SDL_DIR\n"
+pinf "_SDL_DIR=$SDL_DIR\n"
 
 # enable if required
 # export PATH="$SDL_DIR/bin:$SDL_DIR/lib:$PATH"
