@@ -1,4 +1,3 @@
-/*
-!app
-!.gitignore
-!README.md
+out/
+__pycache__/
+env/host_*

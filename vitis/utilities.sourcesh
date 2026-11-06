@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+(return 0 2>/dev/null) && QUIT="return" || QUIT="exit"
+[ -z "${MB_APP_ROOT}" ] && echo "bad MB_APP_ROOT" && $QUIT
+
+vitis_tcl () {
+  unset XSCT_CMD
+  command -v xsct &>/dev/null && export XSCT_CMD="xsct"
+  command -v xsct.bat &>/dev/null && export XSCT_CMD="xsct.bat"
+  [ -z $XSCT_CMD ] && perr "can't locate xsct.bat or xsct" && exit 1
+  "${XSCT_CMD}" "${1}" | grep -E 'ERROR:|WARNING:|INFO:|OK:'
+}
+
+vitis_python () {
+  export PYTHONPYCACHEPREFIX="${MB_APP_OUT_PDIR}/__pycache__"
+  vitis -s "${1}" | grep -E 'ERROR:|WARNING:|INFO:|OK:'
+}
+
+safe_cp() {
+  [ ! -f "$1" ] && pwrn "safe_cp - no source\n $1\n" && return
+  [ -f "$2" ] && pinf "safe_cp - removing target\n $2\n" && rm -rf "$2"
+  [ -f "$2" ] && perr "safe_cp - failed to remove target\n $2\n" && return
+  cp "$1" "$2"
+  pok "safe_cp - copied\n $1\n $2\n"
+}
+
+cp_python_artifacts() {
+  safe_cp "${MB_VITIS_PYTHON_FSBL_ELF_FP}" "${MB_VITIS_FSBL_ELF_FP}"
+  safe_cp "${MB_VITIS_PYTHON_APP_ELF_FP}" "${MB_VITIS_APP_ELF_FP}"
+}
+
+cp_tcl_artifacts() {
+  safe_cp "${MB_VITIS_TCL_FSBL_ELF_FP}" "${MB_VITIS_FSBL_ELF_FP}"
+  safe_cp "${MB_VITIS_TCL_APP_ELF_FP}" "${MB_VITIS_APP_ELF_FP}"
+}
+
+# NOTE
+# Vitis doesn't exit cleanly/swiftly after closing the python client connection.
+# This can lock the workspace, blocking any subsequent activities.
+# Hence the necessity to explicitly kill the server prior to using the API.
+
+list_xilinx () {
+  ps -W 2>/dev/null | grep -i xilinx
+  pgrep -i vitis
+}
+
+kill_xilinx() {
+  # msys
+  ps -W 2>/dev/null | grep -i xilinx | xargs kill -f 2>/dev/null
+  # linux and wsl
+  pkill -f vitis-server
+  # all
+  rm -rf ${MB_VITIS_OUT_PATH}.lock
+}
+
+kill_xilinx_if_cutover () {
+  # echo MB_XILINX_VERSION_VAL ${MB_XILINX_VERSION_VAL}
+  # echo MB_TCL_PY_CUTOVER_OPT ${MB_TCL_PY_CUTOVER_OPT}
+  [ ${MB_XILINX_VERSION_VAL} -lt ${MB_TCL_PY_CUTOVER_OPT} ] && return
+  kill_xilinx
+}
