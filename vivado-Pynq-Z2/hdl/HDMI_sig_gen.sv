@@ -2,9 +2,13 @@
 
 // generates clk and video_clk_tmds from sysclk
 module HDMI_sig_gen #(
-    COORDSPC = 16  // coordinate space (bits)
+    COORDSPC = 16,  // coordinate space (bits)
+    MUL_TMDS,
+    DIV_TMDS,
+    DIV_PIXL,
+    IN_CLK_PER
 ) (
-    input wire sysclk,  // 125MHz
+    input  wire  sysclk,
     output logic clk,
     output logic video_clk_tmds
 );
@@ -22,12 +26,12 @@ module HDMI_sig_gen #(
 
   MMCME2_BASE #(
       .BANDWIDTH("OPTIMIZED"),  // Jitter programming (OPTIMIZED, HIGH, LOW)
-      .CLKFBOUT_MULT_F(6.0),  // Multiply value for all CLKOUT (2.000-64.000).
+      .CLKFBOUT_MULT_F(MUL_TMDS),  // Multiply value for all CLKOUT (2.000-64.000).
       .CLKFBOUT_PHASE(0.0),  // Phase offset in degrees of CLKFB (-360.000-360.000).
-      .CLKIN1_PERIOD(8.0),  // Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
+      .CLKIN1_PERIOD(IN_CLK_PER),  // Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
       // CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
-      .CLKOUT1_DIVIDE(30),  // 125*6/30 = 25 MHz
-      .CLKOUT2_DIVIDE(3),  // 125*6/3  = 250 MHz
+      .CLKOUT1_DIVIDE(DIV_PIXL),  // 125*6/30 = 25 MHz
+      .CLKOUT2_DIVIDE(DIV_TMDS),  // 125*6/3  = 250 MHz
       .CLKOUT3_DIVIDE(1),
       .CLKOUT4_DIVIDE(1),
       .CLKOUT5_DIVIDE(1),

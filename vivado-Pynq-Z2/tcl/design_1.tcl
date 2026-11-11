@@ -187,12 +187,13 @@ proc create_root_design { parentCell } {
 
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
 
-
   # Create ports
   set hdmi_tx_d_p [ create_bd_port -dir O -from 2 -to 0 hdmi_tx_d_p ]
   set hdmi_tx_clk_n [ create_bd_port -dir O -type clk hdmi_tx_clk_n ]
   set hdmi_tx_d_n [ create_bd_port -dir O -from 2 -to 0 hdmi_tx_d_n ]
   set hdmi_tx_clk_p [ create_bd_port -dir O -type clk hdmi_tx_clk_p ]
+  set btn [ create_bd_port -dir I -from 3 -to 0 btn ]
+  set led [ create_bd_port -dir O -from 3 -to 0 led ]
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -653,10 +654,10 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_UIPARAM_DDR_DQS_3_LENGTH_MM {0} \
     CONFIG.PCW_UIPARAM_DDR_DQS_3_PACKAGE_LENGTH {113.63} \
     CONFIG.PCW_UIPARAM_DDR_DQS_3_PROPOGATION_DELAY {160} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {-0.051} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {-0.006} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {-0.009} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {-0.033} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0} \
     CONFIG.PCW_UIPARAM_DDR_DQ_0_LENGTH_MM {32.2} \
     CONFIG.PCW_UIPARAM_DDR_DQ_0_PACKAGE_LENGTH {98.503} \
     CONFIG.PCW_UIPARAM_DDR_DQ_0_PROPOGATION_DELAY {160} \
@@ -725,9 +726,26 @@ proc create_root_design { parentCell } {
   # Create instance: clk_wiz_0, and set properties
   set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0 ]
   set_property -dict [list \
-    CONFIG.CLKOUT1_JITTER {125.247} \
-    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {125.000} \
-    CONFIG.MMCM_CLKOUT0_DIVIDE_F {8.000} \
+    CONFIG.CLKOUT1_JITTER {240.422} \
+    CONFIG.CLKOUT1_PHASE_ERROR {300.278} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {80.0} \
+    CONFIG.CLKOUT2_JITTER {242.898} \
+    CONFIG.CLKOUT2_PHASE_ERROR {300.278} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {74.28571} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_JITTER {247.428} \
+    CONFIG.CLKOUT3_PHASE_ERROR {300.278} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {65.0} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLK_OUT1_PORT {clk_out_80_00} \
+    CONFIG.CLK_OUT2_PORT {clk_out_74_28} \
+    CONFIG.CLK_OUT3_PORT {clk_out_65_00} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {52.000} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {13.000} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {14} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {16} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {5} \
+    CONFIG.NUM_OUT_CLKS {3} \
     CONFIG.PRIM_SOURCE {No_buffer} \
     CONFIG.RESET_PORT {resetn} \
     CONFIG.RESET_TYPE {ACTIVE_LOW} \
@@ -750,20 +768,18 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
 
   # Create port connections
-  connect_bd_net -net clk_wiz_0_clk_out1  [get_bd_pins clk_wiz_0/clk_out1] \
-  [get_bd_pins top_HDMI_0/sysclk]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0  [get_bd_pins processing_system7_0/FCLK_CLK0] \
-  [get_bd_pins clk_wiz_0/clk_in1]
-  connect_bd_net -net processing_system7_0_FCLK_RESET0_N  [get_bd_pins processing_system7_0/FCLK_RESET0_N] \
-  [get_bd_pins clk_wiz_0/resetn]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_clk_n  [get_bd_pins top_HDMI_0/hdmi_tx_clk_n] \
-  [get_bd_ports hdmi_tx_clk_n]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_clk_p  [get_bd_pins top_HDMI_0/hdmi_tx_clk_p] \
-  [get_bd_ports hdmi_tx_clk_p]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_d_n  [get_bd_pins top_HDMI_0/hdmi_tx_d_n] \
-  [get_bd_ports hdmi_tx_d_n]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_d_p  [get_bd_pins top_HDMI_0/hdmi_tx_d_p] \
-  [get_bd_ports hdmi_tx_d_p]
+  connect_bd_net -net btn_0_1 [get_bd_ports btn] [get_bd_pins top_HDMI_0/btn]
+  connect_bd_net -net clk_wiz_0_clk_out_65_00 [get_bd_pins clk_wiz_0/clk_out_65_00] [get_bd_pins top_HDMI_0/sys_65_00_clk]
+  connect_bd_net -net clk_wiz_0_clk_out_74_28 [get_bd_pins clk_wiz_0/clk_out_74_28] [get_bd_pins top_HDMI_0/sys_74_28_clk]
+  connect_bd_net -net clk_wiz_0_clk_out_80_00 [get_bd_pins clk_wiz_0/clk_out_80_00] [get_bd_pins top_HDMI_0/sys_80_00_clk]
+  connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins top_HDMI_0/sysclk_locked]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins clk_wiz_0/clk_in1]
+  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins clk_wiz_0/resetn]
+  connect_bd_net -net top_HDMI_0_hdmi_tx_clk_n [get_bd_pins top_HDMI_0/hdmi_tx_clk_n] [get_bd_ports hdmi_tx_clk_n]
+  connect_bd_net -net top_HDMI_0_hdmi_tx_clk_p [get_bd_pins top_HDMI_0/hdmi_tx_clk_p] [get_bd_ports hdmi_tx_clk_p]
+  connect_bd_net -net top_HDMI_0_hdmi_tx_d_n [get_bd_pins top_HDMI_0/hdmi_tx_d_n] [get_bd_ports hdmi_tx_d_n]
+  connect_bd_net -net top_HDMI_0_hdmi_tx_d_p [get_bd_pins top_HDMI_0/hdmi_tx_d_p] [get_bd_ports hdmi_tx_d_p]
+  connect_bd_net -net top_HDMI_0_led [get_bd_pins top_HDMI_0/led] [get_bd_ports led]
 
   # Create address segments
 

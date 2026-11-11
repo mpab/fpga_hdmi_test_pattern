@@ -1,3 +1,6 @@
 out/
 __pycache__/
 env/host_*
+*.jou
+*.log
+*.str
