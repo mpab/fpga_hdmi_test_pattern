@@ -7,8 +7,8 @@
 module HDMI_encoder #(
     COLSPC = 10  // color space (bits)
 ) (
-    input wire clk,
-    input wire video_clk_tmds,
+    input wire pixel_clk,
+    input wire tmds_clk,
     input wire video_enable,
     input wire v_sync,
     input wire h_sync,
@@ -29,23 +29,22 @@ module HDMI_encoder #(
   // 8b/10b encoding for transmission
   logic [COLSPC-1:0] tmds_red, tmds_green, tmds_blue;
 
-  // instantiate TMDS encoders (TMDS_encoder.vhd file from github)
   TMDS_encoder encode_red (
-      .clk (clk),
+      .pixel_clk (pixel_clk),
       .VD  (red),
       .CD  (2'b00),
       .VDE (video_enable),
       .TMDS(tmds_red)
   );
   TMDS_encoder encode_green (
-      .clk (clk),
+      .pixel_clk (pixel_clk),
       .VD  (green),
       .CD  (2'b00),
       .VDE (video_enable),
       .TMDS(tmds_green)
   );
   TMDS_encoder encode_blue (
-      .clk(clk),
+      .pixel_clk(pixel_clk),
       .VD(blue),
       .CD({v_sync, h_sync}),
       .VDE(video_enable),  // sync on blue
@@ -59,10 +58,10 @@ module HDMI_encoder #(
   logic [COLSPC-1:0] TMDS_shift_red = 0, TMDS_shift_green = 0, TMDS_shift_blue = 0;
   logic TMDS_shift_load = 0;
 
-  always_ff @(posedge video_clk_tmds)
+  always_ff @(posedge tmds_clk)
     TMDS_shift_load <= (TMDS_mod10 == 4'd9);  // shift load is high only if mod ten counter is done
 
-  always_ff @(posedge video_clk_tmds) begin
+  always_ff @(posedge tmds_clk) begin
     TMDS_shift_red   <= TMDS_shift_load ? tmds_red   : TMDS_shift_red  [9:1];  // only if all the old data has been serialized, then start shifting new data
     TMDS_shift_green <= TMDS_shift_load ? tmds_green : TMDS_shift_green[9:1];  // kind of a wierd way of shifting but it works. replacing the last shift data with the MSB:LSB+1
     TMDS_shift_blue <= TMDS_shift_load ? tmds_blue : TMDS_shift_blue[9:1];
@@ -124,7 +123,7 @@ module HDMI_encoder #(
   ) OBUFDS_clock (
       .O(hdmi_tx_clk_p),  // Diff_p output (connect directly to top-level port)
       .OB(hdmi_tx_clk_n),  // Diff_n output (connect directly to top-level port)
-      .I(clk)  // Buffer input
+      .I(pixel_clk)  // Buffer input
   );
 
   // End of OBUFDS_inst instantiation

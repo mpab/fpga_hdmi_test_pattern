@@ -9,7 +9,7 @@ module VIDEO_test_pattern #(
     COORDSPC = 16,  // coordinate space (bits)
     COLSPC   = 10
 ) (
-    input wire clk,
+    input wire pixel_clk,
     input wire signed [COORDSPC-1:0] beam_x,
     input wire signed [COORDSPC-1:0] beam_y,
     output logic [COLSPC-1:0] red,
@@ -21,7 +21,7 @@ module VIDEO_test_pattern #(
   wire [COLSPC-1:0] W = {COLSPC{SX[7:0] == SY[7:0]}};
   wire [COLSPC-1:0] A = {COLSPC{SX[7:5] == 3'h2 && SY[7:5] == 3'h2}};
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge pixel_clk) begin
     red   <= ({SX[5:0] & {6{SY[4:3] == ~SX[4:3]}}, 4'b0} | W) & ~A;
     green <= (SX & {COLSPC{SY[6]}} | W) & ~A;
     blue  <= SY | W | A;

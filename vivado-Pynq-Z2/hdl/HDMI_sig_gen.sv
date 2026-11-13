@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-// generates clk and video_clk_tmds from sysclk
+// generates clk and tmds_clk from sysclk
 module HDMI_sig_gen #(
     COORDSPC = 16,  // coordinate space (bits)
     MUL_TMDS,
@@ -9,8 +9,8 @@ module HDMI_sig_gen #(
     IN_CLK_PER
 ) (
     input  wire  sysclk,
-    output logic clk,
-    output logic video_clk_tmds
+    output logic pixel_clk,
+    output logic tmds_clk
 );
   ////////////////////////////////////////////////////////////////////////
   // sysclk divider 125 MHz to 25 MHz clk_pix, and multiplier 125 MHz to 250 MHz
@@ -92,7 +92,7 @@ module HDMI_sig_gen #(
   // Xilinx HDL Language Template, version 2020.1
 
   BUFG BUFG_clk_pix (
-      .O(clk),  // 1-bit output: Clock output
+      .O(pixel_clk),  // 1-bit output: Clock output
       .I(MMCM_pix_clock)  // 1-bit input: Clock input
   );
 
@@ -101,7 +101,7 @@ module HDMI_sig_gen #(
   // Xilinx HDL Language Template, version 2020.1
 
   BUFG BUFG_TMDSp (
-      .O(video_clk_tmds),  // 1-bit output: Clock output
+      .O(tmds_clk),  // 1-bit output: Clock output
       .I(DCM_TMDS_CLKFX)   // 1-bit input: Clock input
   );
 

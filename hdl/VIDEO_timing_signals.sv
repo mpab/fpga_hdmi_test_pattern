@@ -1,27 +1,17 @@
 `timescale 1ns / 1ps
 
+`include "VIDEO_timing_signals_presets.vh"
+
 // references:
 // https://vanhunteradams.com/DE1/VGA_Driver/Driver.html
 // https://adaptivesupport.amd.com/s/article/899769?language=en_US
 
 module VIDEO_timing_signals #(
-    parameter H_RES         = 640,  // drawable columns
-    parameter H_FRONT_PORCH = 16,   // horizontal front porch
-    parameter H_SYNC_PULSE  = 96,   // horizontal sync
-    parameter H_BACK_PORCH  = 48,   // horizontal back porch
-    parameter H_SYNC_POL    = 0,    // horizontal sync polarity (0:neg, 1:pos)
-
-    parameter V_RES         = 480,  // drawable rows
-    parameter V_FRONT_PORCH = 10,   // vertical front porch
-    parameter V_SYNC_PULSE  = 2,    // vertical sync
-    parameter V_BACK_PORCH  = 33,   // vertical back porch
-    parameter V_SYNC_POL    = 0,    // vertical sync polarity (0:neg, 1:pos)
-
     parameter COORDSPC = 16  // coordinate space (bits)
 ) (
-    input  wire                        clk,
-    input  wire                        reset,
-    // input                           scandouble,
+    input  wire                        pixel_clk,
+    input  wire                        sys_reset_n,
+    input  logic        [         1:0] res_sel,
     output logic                       signals_valid,
     output logic                       video_enable,
     output logic                       beam_at_zero,
@@ -35,15 +25,26 @@ module VIDEO_timing_signals #(
     output logic signed [COORDSPC-1:0] beam_y
 );
 
-  localparam H_SIG_LEN = H_RES + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH;
-  localparam V_SIG_LEN = V_RES + V_FRONT_PORCH + V_SYNC_PULSE + V_BACK_PORCH;
-  localparam H_SIG_END = H_SIG_LEN - 1;  // signal end
-  localparam V_SIG_END = V_SIG_LEN - 1;  // signal end
+  int H_RES = VTS_CFG[res_sel][I_H_RES];
+  int H_FRONT_PORCH = VTS_CFG[res_sel][I_H_FRONT_PORCH];
+  int H_SYNC_PULSE = VTS_CFG[res_sel][I_H_SYNC_PULSE];
+  int H_BACK_PORCH = VTS_CFG[res_sel][I_H_BACK_PORCH];
+  int H_SYNC_POL = VTS_CFG[res_sel][I_H_SYNC_POL];
+  int V_RES = VTS_CFG[res_sel][I_V_RES];
+  int V_FRONT_PORCH = VTS_CFG[res_sel][I_V_FRONT_PORCH];
+  int V_SYNC_PULSE = VTS_CFG[res_sel][I_V_SYNC_PULSE];
+  int V_BACK_PORCH = VTS_CFG[res_sel][I_V_BACK_PORCH];
+  int V_SYNC_POL = VTS_CFG[res_sel][I_V_SYNC_POL];
+
+  int H_SIG_LEN = H_RES + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH;
+  int V_SIG_LEN = V_RES + V_FRONT_PORCH + V_SYNC_PULSE + V_BACK_PORCH;
+  int H_SIG_END = H_SIG_LEN - 1;  // signal end
+  int V_SIG_END = V_SIG_LEN - 1;  // signal end
   // -ve co-ordinate wrap-around
-  localparam signed H_DRAW_END = H_RES - 1;
-  localparam signed H_NEG_START = 0 - (H_SIG_LEN - H_RES);
-  localparam signed V_DRAW_END = V_RES - 1;
-  localparam signed V_NEG_START = 0 - (V_SIG_LEN - V_RES);
+  int H_DRAW_END = H_RES - 1;
+  int H_NEG_START = 0 - (H_SIG_LEN - H_RES);
+  int V_DRAW_END = V_RES - 1;
+  int V_NEG_START = 0 - (V_SIG_LEN - V_RES);
 
   assign beam_at_zero = (beam_x == 0) && (beam_y == 0);
   assign frame_start = (beam_y == V_NEG_START) && (beam_x == H_NEG_START);
@@ -94,8 +95,8 @@ module VIDEO_timing_signals #(
   assign v_sync = (V_SIG_LEN + beam_y >= V_RES + V_FRONT_PORCH) && (V_SIG_LEN + beam_y < V_RES + V_FRONT_PORCH + V_SYNC_PULSE) ? V_SYNC_POL : !V_SYNC_POL;
 
   logic signed [COORDSPC-1:0] l_beam_x, l_beam_y;  // latched beam position
-  always_ff @(posedge clk) begin
-    if (reset) begin
+  always_ff @(posedge pixel_clk) begin
+    if (!sys_reset_n) begin
       beam_x <= 0;
       beam_y <= 0;
     end else begin
@@ -104,8 +105,8 @@ module VIDEO_timing_signals #(
     end
   end
 
-  always_ff @(posedge clk) begin
-    if (reset) begin
+  always_ff @(posedge pixel_clk) begin
+    if (!sys_reset_n) begin
       signals_valid <= 0;
     end else begin
       signals_valid <= 1;

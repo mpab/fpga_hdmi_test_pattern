@@ -187,6 +187,7 @@ proc create_root_design { parentCell } {
 
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
 
+
   # Create ports
   set hdmi_tx_d_p [ create_bd_port -dir O -from 2 -to 0 hdmi_tx_d_p ]
   set hdmi_tx_clk_n [ create_bd_port -dir O -type clk hdmi_tx_clk_n ]
@@ -773,8 +774,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net clk_wiz_0_clk_out_74_28 [get_bd_pins clk_wiz_0/clk_out_74_28] [get_bd_pins top_HDMI_0/sys_74_28_clk]
   connect_bd_net -net clk_wiz_0_clk_out_80_00 [get_bd_pins clk_wiz_0/clk_out_80_00] [get_bd_pins top_HDMI_0/sys_80_00_clk]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins top_HDMI_0/sysclk_locked]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins clk_wiz_0/clk_in1]
-  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins clk_wiz_0/resetn]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins top_HDMI_0/sys_100M_clk]
+  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins top_HDMI_0/sys_reset_n]
   connect_bd_net -net top_HDMI_0_hdmi_tx_clk_n [get_bd_pins top_HDMI_0/hdmi_tx_clk_n] [get_bd_ports hdmi_tx_clk_n]
   connect_bd_net -net top_HDMI_0_hdmi_tx_clk_p [get_bd_pins top_HDMI_0/hdmi_tx_clk_p] [get_bd_ports hdmi_tx_clk_p]
   connect_bd_net -net top_HDMI_0_hdmi_tx_d_n [get_bd_pins top_HDMI_0/hdmi_tx_d_n] [get_bd_ports hdmi_tx_d_n]

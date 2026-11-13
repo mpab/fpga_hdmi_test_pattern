@@ -4,7 +4,7 @@ module VIDEO_source #(
     COORDSPC = 16,  // coordinate space (bits)
     COLSPC   = 10   // color space (bits)
 ) (
-    input wire clk,
+    input wire pixel_clk,
     input wire video_enable,
     input wire v_sync,
     input wire h_sync,
@@ -28,7 +28,7 @@ module VIDEO_source #(
     .*
   );
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge pixel_clk) begin
     red   <= video_enable ? COLSPC'(_red) : COLSPC'(0);
     green <= video_enable ? COLSPC'(_green) : COLSPC'(0);
     blue  <= video_enable ? COLSPC'(_blue) : COLSPC'(0);
