@@ -145,7 +145,8 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set obj [get_filesets constrs_1]
 
 # constraints
-add_files -fileset constrs_1 -norecurse ${MB_VIVADO_PLATFORM_XDC_FP}
+set constraints_files_platform [glob -nocomplain -directory ${MB_VIVADO_PLATFORM_CONSTRAINTS_PATH} -type f *]
+add_files -fileset constrs_1 -norecurse $constraints_files_platform
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
