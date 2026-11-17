@@ -3,8 +3,8 @@
 */
 
 module mycore #(
-    parameter COORDSPC = 16,
-    parameter COLSPC   = 10
+    parameter VID_COORD_BITS = 16,
+    parameter VID_COLOR_BITS   = 10
 ) (
     input clk,
     input reset,
@@ -19,16 +19,16 @@ module mycore #(
     output reg VBlank,
     output reg VSync,
 
-    output [COLSPC-1:0] red,
-    output [COLSPC-1:0] green,
-    output [COLSPC-1:0] blue
+    output [VID_COLOR_BITS-1:0] red,
+    output [VID_COLOR_BITS-1:0] green,
+    output [VID_COLOR_BITS-1:0] blue
 );
 
   logic video_enable, frame_start, line_start;
-  logic [COORDSPC-1:0] beam_x;
-  logic [COORDSPC-1:0] beam_y;
+  logic [11:0] beam_x;
+  logic [11:0] beam_y;
 
-  VIDEO_timing_signals video_signals (
+  videotiming_signals video_signals (
       .pixel_clk(clk),
       .sys_reset_n(~reset),
       .signals_valid(ce_pix),
@@ -44,7 +44,7 @@ module mycore #(
       .beam_y(beam_y)
   );
 
-  VIDEO_source video_source (
+  videosource video_source (
       .pixel_clk(clk),
       .video_enable(video_enable),
       .h_sync(HSync),

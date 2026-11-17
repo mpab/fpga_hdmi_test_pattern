@@ -4,3 +4,4 @@ env/host_*
 *.jou
 *.log
 *.str
+.Xil/

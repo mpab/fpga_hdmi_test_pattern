@@ -94,7 +94,6 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 xilinx.com:ip:processing_system7:5.5\
-xilinx.com:ip:clk_wiz:6.0\
 "
 
    set list_ips_missing ""
@@ -120,7 +119,7 @@ xilinx.com:ip:clk_wiz:6.0\
 set bCheckModules 1
 if { $bCheckModules == 1 } {
    set list_check_mods "\ 
-top_HDMI_\
+top_hdmi_\
 "
 
    set list_mods_missing ""
@@ -195,6 +194,7 @@ proc create_root_design { parentCell } {
   set hdmi_tx_clk_p [ create_bd_port -dir O -type clk hdmi_tx_clk_p ]
   set btn [ create_bd_port -dir I -from 3 -to 0 btn ]
   set led [ create_bd_port -dir O -from 3 -to 0 led ]
+  set sw [ create_bd_port -dir I -from 1 -to 0 sw ]
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -206,7 +206,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_ACT_DCI_PERIPHERAL_FREQMHZ {10.096154} \
     CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {125.000000} \
     CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
-    CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {100.000000} \
+    CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {125.000000} \
     CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {10.000000} \
     CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
     CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
@@ -231,10 +231,12 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_APU_CLK_RATIO_ENABLE {6:2:1} \
     CONFIG.PCW_APU_PERIPHERAL_FREQMHZ {650} \
     CONFIG.PCW_CAN0_PERIPHERAL_CLKSRC {External} \
+    CONFIG.PCW_CAN0_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_CAN1_PERIPHERAL_CLKSRC {External} \
+    CONFIG.PCW_CAN1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_CAN_PERIPHERAL_CLKSRC {IO PLL} \
     CONFIG.PCW_CAN_PERIPHERAL_VALID {0} \
-    CONFIG.PCW_CLK0_FREQ {100000000} \
+    CONFIG.PCW_CLK0_FREQ {125000000} \
     CONFIG.PCW_CLK1_FREQ {10000000} \
     CONFIG.PCW_CLK2_FREQ {10000000} \
     CONFIG.PCW_CLK3_FREQ {10000000} \
@@ -326,7 +328,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_EN_TTC1 {0} \
     CONFIG.PCW_EN_UART0 {1} \
     CONFIG.PCW_EN_UART1 {0} \
-    CONFIG.PCW_EN_USB0 {1} \
+    CONFIG.PCW_EN_USB0 {0} \
     CONFIG.PCW_EN_USB1 {0} \
     CONFIG.PCW_EN_WDT {0} \
     CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
@@ -334,7 +336,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
     CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} \
     CONFIG.PCW_FCLK_CLK0_BUF {TRUE} \
-    CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
+    CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {125.000} \
     CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {50} \
     CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {50} \
     CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {50} \
@@ -345,10 +347,13 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} \
     CONFIG.PCW_GPIO_MIO_GPIO_IO {MIO} \
     CONFIG.PCW_GPIO_PERIPHERAL_ENABLE {0} \
+    CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {0} \
+    CONFIG.PCW_I2C1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_I2C_RESET_ENABLE {1} \
     CONFIG.PCW_I2C_RESET_POLARITY {Active Low} \
     CONFIG.PCW_IMPORT_BOARD_PRESET {None} \
     CONFIG.PCW_INCLUDE_ACP_TRANS_CHECK {0} \
+    CONFIG.PCW_IRQ_F2P_MODE {DIRECT} \
     CONFIG.PCW_MIO_0_IOTYPE {LVCMOS 3.3V} \
     CONFIG.PCW_MIO_0_PULLUP {enabled} \
     CONFIG.PCW_MIO_0_SLEW {slow} \
@@ -506,9 +511,9 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_MIO_9_SLEW {slow} \
     CONFIG.PCW_MIO_PRIMITIVE {54} \
     CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#Quad SPI Flash#ENET Reset#GPIO#GPIO#GPIO#GPIO#UART 0#UART 0#Enet\
-0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#USB Reset#SD 0#GPIO#GPIO#GPIO#GPIO#Enet\
+0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#GPIO#SD 0#GPIO#GPIO#GPIO#GPIO#Enet\
 0#Enet 0} \
-    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#qspi_fbclk#reset#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#reset#cd#gpio[48]#gpio[49]#gpio[50]#gpio[51]#mdc#mdio}\
+    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#qspi_fbclk#reset#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#gpio[46]#cd#gpio[48]#gpio[49]#gpio[50]#gpio[51]#mdc#mdio}\
 \
     CONFIG.PCW_NAND_CYCLES_T_AR {1} \
     CONFIG.PCW_NAND_CYCLES_T_CLR {1} \
@@ -556,7 +561,8 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_PACKAGE_DDR_DQS_TO_CLK_DELAY_3 {-0.033} \
     CONFIG.PCW_PCAP_PERIPHERAL_CLKSRC {IO PLL} \
     CONFIG.PCW_PCAP_PERIPHERAL_FREQMHZ {200} \
-    CONFIG.PCW_PERIPHERAL_BOARD_PRESET {None} \
+    CONFIG.PCW_PERIPHERAL_BOARD_PRESET {part0} \
+    CONFIG.PCW_PJTAG_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_PLL_BYPASSMODE_ENABLE {0} \
     CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 3.3V} \
     CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V} \
@@ -599,18 +605,22 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_SPI_PERIPHERAL_CLKSRC {IO PLL} \
     CONFIG.PCW_SPI_PERIPHERAL_VALID {0} \
     CONFIG.PCW_TPIU_PERIPHERAL_CLKSRC {External} \
+    CONFIG.PCW_TRACE_INTERNAL_WIDTH {2} \
+    CONFIG.PCW_TRACE_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_TTC0_CLK0_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_TTC0_CLK0_PERIPHERAL_DIVISOR0 {1} \
     CONFIG.PCW_TTC0_CLK1_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_TTC0_CLK1_PERIPHERAL_DIVISOR0 {1} \
     CONFIG.PCW_TTC0_CLK2_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_TTC0_CLK2_PERIPHERAL_DIVISOR0 {1} \
+    CONFIG.PCW_TTC0_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_TTC1_CLK0_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_TTC1_CLK0_PERIPHERAL_DIVISOR0 {1} \
     CONFIG.PCW_TTC1_CLK1_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_TTC1_CLK1_PERIPHERAL_DIVISOR0 {1} \
     CONFIG.PCW_TTC1_CLK2_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_TTC1_CLK2_PERIPHERAL_DIVISOR0 {1} \
+    CONFIG.PCW_TTC1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_UART0_BASEADDR {0xE0000000} \
     CONFIG.PCW_UART0_BAUD_RATE {115200} \
     CONFIG.PCW_UART0_GRP_FULL_ENABLE {0} \
@@ -655,10 +665,10 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_UIPARAM_DDR_DQS_3_LENGTH_MM {0} \
     CONFIG.PCW_UIPARAM_DDR_DQS_3_PACKAGE_LENGTH {113.63} \
     CONFIG.PCW_UIPARAM_DDR_DQS_3_PROPOGATION_DELAY {160} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0} \
-    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0.0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0.0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0.0} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0.0} \
     CONFIG.PCW_UIPARAM_DDR_DQ_0_LENGTH_MM {32.2} \
     CONFIG.PCW_UIPARAM_DDR_DQ_0_PACKAGE_LENGTH {98.503} \
     CONFIG.PCW_UIPARAM_DDR_DQ_0_PROPOGATION_DELAY {160} \
@@ -682,16 +692,10 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL {1} \
     CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {0} \
     CONFIG.PCW_UIPARAM_GENERATE_SUMMARY {NA} \
-    CONFIG.PCW_USB0_BASEADDR {0xE0102000} \
-    CONFIG.PCW_USB0_HIGHADDR {0xE0102fff} \
-    CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} \
-    CONFIG.PCW_USB0_RESET_ENABLE {1} \
-    CONFIG.PCW_USB0_RESET_IO {MIO 46} \
-    CONFIG.PCW_USB0_USB0_IO {MIO 28 .. 39} \
+    CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_USB1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_USB_RESET_ENABLE {1} \
     CONFIG.PCW_USB_RESET_POLARITY {Active Low} \
-    CONFIG.PCW_USB_RESET_SELECT {Share reset pin} \
     CONFIG.PCW_USE_AXI_FABRIC_IDLE {0} \
     CONFIG.PCW_USE_AXI_NONSECURE {0} \
     CONFIG.PCW_USE_CORESIGHT {0} \
@@ -721,45 +725,17 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_VALUE_SILVERSION {3} \
     CONFIG.PCW_WDT_PERIPHERAL_CLKSRC {CPU_1X} \
     CONFIG.PCW_WDT_PERIPHERAL_DIVISOR0 {1} \
+    CONFIG.PCW_WDT_PERIPHERAL_ENABLE {0} \
   ] $processing_system7_0
 
 
-  # Create instance: clk_wiz_0, and set properties
-  set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0 ]
-  set_property -dict [list \
-    CONFIG.CLKOUT1_JITTER {240.422} \
-    CONFIG.CLKOUT1_PHASE_ERROR {300.278} \
-    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {80.0} \
-    CONFIG.CLKOUT2_JITTER {242.898} \
-    CONFIG.CLKOUT2_PHASE_ERROR {300.278} \
-    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {74.28571} \
-    CONFIG.CLKOUT2_USED {true} \
-    CONFIG.CLKOUT3_JITTER {247.428} \
-    CONFIG.CLKOUT3_PHASE_ERROR {300.278} \
-    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {65.0} \
-    CONFIG.CLKOUT3_USED {true} \
-    CONFIG.CLK_OUT1_PORT {clk_out_80_00} \
-    CONFIG.CLK_OUT2_PORT {clk_out_74_28} \
-    CONFIG.CLK_OUT3_PORT {clk_out_65_00} \
-    CONFIG.MMCM_CLKFBOUT_MULT_F {52.000} \
-    CONFIG.MMCM_CLKOUT0_DIVIDE_F {13.000} \
-    CONFIG.MMCM_CLKOUT1_DIVIDE {14} \
-    CONFIG.MMCM_CLKOUT2_DIVIDE {16} \
-    CONFIG.MMCM_DIVCLK_DIVIDE {5} \
-    CONFIG.NUM_OUT_CLKS {3} \
-    CONFIG.PRIM_SOURCE {No_buffer} \
-    CONFIG.RESET_PORT {resetn} \
-    CONFIG.RESET_TYPE {ACTIVE_LOW} \
-  ] $clk_wiz_0
-
-
-  # Create instance: top_HDMI_0, and set properties
-  set block_name top_HDMI_
-  set block_cell_name top_HDMI_0
-  if { [catch {set top_HDMI_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+  # Create instance: top_hdmi_0, and set properties
+  set block_name top_hdmi_
+  set block_cell_name top_hdmi_0
+  if { [catch {set top_hdmi_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
-   } elseif { $top_HDMI_0 eq "" } {
+   } elseif { $top_hdmi_0 eq "" } {
      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
@@ -769,18 +745,15 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
 
   # Create port connections
-  connect_bd_net -net btn_0_1 [get_bd_ports btn] [get_bd_pins top_HDMI_0/btn]
-  connect_bd_net -net clk_wiz_0_clk_out_65_00 [get_bd_pins clk_wiz_0/clk_out_65_00] [get_bd_pins top_HDMI_0/sys_65_00_clk]
-  connect_bd_net -net clk_wiz_0_clk_out_74_28 [get_bd_pins clk_wiz_0/clk_out_74_28] [get_bd_pins top_HDMI_0/sys_74_28_clk]
-  connect_bd_net -net clk_wiz_0_clk_out_80_00 [get_bd_pins clk_wiz_0/clk_out_80_00] [get_bd_pins top_HDMI_0/sys_80_00_clk]
-  connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins top_HDMI_0/sysclk_locked]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins top_HDMI_0/sys_100M_clk]
-  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins top_HDMI_0/sys_reset_n]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_clk_n [get_bd_pins top_HDMI_0/hdmi_tx_clk_n] [get_bd_ports hdmi_tx_clk_n]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_clk_p [get_bd_pins top_HDMI_0/hdmi_tx_clk_p] [get_bd_ports hdmi_tx_clk_p]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_d_n [get_bd_pins top_HDMI_0/hdmi_tx_d_n] [get_bd_ports hdmi_tx_d_n]
-  connect_bd_net -net top_HDMI_0_hdmi_tx_d_p [get_bd_pins top_HDMI_0/hdmi_tx_d_p] [get_bd_ports hdmi_tx_d_p]
-  connect_bd_net -net top_HDMI_0_led [get_bd_pins top_HDMI_0/led] [get_bd_ports led]
+  connect_bd_net -net btn_0_1 [get_bd_ports btn] [get_bd_pins top_hdmi_0/btn]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins top_hdmi_0/sys_clk]
+  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins top_hdmi_0/sys_reset_n]
+  connect_bd_net -net sw_0_1 [get_bd_ports sw] [get_bd_pins top_hdmi_0/sw]
+  connect_bd_net -net top_hdmi_0_hdmi_tx_clk_n [get_bd_pins top_hdmi_0/hdmi_tx_clk_n] [get_bd_ports hdmi_tx_clk_n]
+  connect_bd_net -net top_hdmi_0_hdmi_tx_clk_p [get_bd_pins top_hdmi_0/hdmi_tx_clk_p] [get_bd_ports hdmi_tx_clk_p]
+  connect_bd_net -net top_hdmi_0_hdmi_tx_d_n [get_bd_pins top_hdmi_0/hdmi_tx_d_n] [get_bd_ports hdmi_tx_d_n]
+  connect_bd_net -net top_hdmi_0_hdmi_tx_d_p [get_bd_pins top_hdmi_0/hdmi_tx_d_p] [get_bd_ports hdmi_tx_d_p]
+  connect_bd_net -net top_hdmi_0_led [get_bd_pins top_hdmi_0/led] [get_bd_ports led]
 
   # Create address segments
 

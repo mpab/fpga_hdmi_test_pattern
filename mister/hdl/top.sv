@@ -34,9 +34,9 @@ assign VGA_SL = 0;
 assign VGA_F1 = 0;
 assign VGA_SCALER  = 0;
 assign VGA_DISABLE = 0;
-assign HDMI_FREEZE = 0;
-assign HDMI_BLACKOUT = 0;
-assign HDMI_BOB_DEINT = 0;
+assign hdmi_FREEZE = 0;
+assign hdmi_BLACKOUT = 0;
+assign hdmi_BOB_DEINT = 0;
 
 assign AUDIO_S = 0;
 assign AUDIO_L = 0;
@@ -51,8 +51,8 @@ assign BUTTONS = 0;
 
 wire [1:0] ar = status[122:121];
 
-assign VIDEO_ARX = (!ar) ? 12'd4 : (ar - 1'd1);
-assign VIDEO_ARY = (!ar) ? 12'd3 : 12'd0;
+assign videoARX = (!ar) ? 12'd4 : (ar - 1'd1);
+assign videoARY = (!ar) ? 12'd3 : 12'd0;
 
 `include "build_id.v" 
 localparam CONF_STR = {

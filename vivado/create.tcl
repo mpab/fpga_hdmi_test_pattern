@@ -147,6 +147,9 @@ set obj [get_filesets constrs_1]
 # constraints
 set constraints_files_platform [glob -nocomplain -directory ${MB_VIVADO_PLATFORM_CONSTRAINTS_PATH} -type f *]
 add_files -fileset constrs_1 -norecurse $constraints_files_platform
+# will generate warnings in synthesis
+# TODO: make a configuration/env option?
+set_property used_in_synthesis false [get_files ${MB_VIVADO_PLATFORM_CONSTRAINTS_PATH}/planning.xdc]
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {

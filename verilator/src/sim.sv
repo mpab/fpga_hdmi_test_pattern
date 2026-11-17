@@ -3,8 +3,8 @@
 module sim #(
     H_RES = 640,
     V_RES = 480,
-    COORDSPC = 16,  // coordinate space (bits)
-    COLSPC = 10  // color space (bits)
+    VID_COORD_BITS = 16,  // coordinate space (bits)
+    VID_COLOR_BITS = 10  // color space (bits)
 ) (
     input logic clk,
     input logic reset,
@@ -13,13 +13,13 @@ module sim #(
     output logic h_sync,
     output logic frame_start,
     output logic line_start,
-    output logic signed [COORDSPC-1:0] beam_x,
-    output logic signed [COORDSPC-1:0] beam_y,
-    output logic [COLSPC-1:0] red,
-    output logic [COLSPC-1:0] green,
-    output logic [COLSPC-1:0] blue
+    output logic signed [11:0] beam_x,
+    output logic signed [11:0] beam_y,
+    output logic [VID_COLOR_BITS-1:0] red,
+    output logic [VID_COLOR_BITS-1:0] green,
+    output logic [VID_COLOR_BITS-1:0] blue
 );
   logic signals_valid, beam_at_zero, h_blank, v_blank;  // unused
-  VIDEO_timing_signals video_signals (.*);
-  VIDEO_source source (.*);
+  videotiming_signals video_signals (.*);
+  videosource source (.*);
 endmodule

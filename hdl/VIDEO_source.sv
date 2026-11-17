@@ -1,37 +1,36 @@
 `timescale 1ns / 1ps
-
-module VIDEO_source #(
-    COORDSPC = 16,  // coordinate space (bits)
-    COLSPC   = 10   // color space (bits)
-) (
-    input wire pixel_clk,
-    input wire video_enable,
-    input wire v_sync,
-    input wire h_sync,
-    input wire frame_start,
-    input wire line_start,
-    input wire signed [COORDSPC-1:0] beam_x,
-    input wire signed [COORDSPC-1:0] beam_y,
-    output logic [COLSPC-1:0] red,
-    output logic [COLSPC-1:0] green,
-    output logic [COLSPC-1:0] blue
+// ============================================================================
+// File: video_source.sv
+// Description: Wrapper for video source(s)
+// ============================================================================
+module video_source (
+    input  logic        pixel_clk,
+    input  logic        pixel_rst_n,  // Synchronized to pixel_clk
+    input  logic [ 1:0] res_sel,
+    input  logic [ 1:0] pattern_sel,
+    input  logic        hsync,
+    input  logic        vsync,
+    input  logic        de,           // Display Enable
+    input  logic [11:0] pixel_x,
+    input  logic [11:0] pixel_y,
+    input  logic        frame_start,
+    input  logic        line_start,
+    output logic [23:0] rgb_data      // 3x8 bits
 );
 
-  logic [COLSPC-1:0] _red, _green, _blue;
-  VIDEO_test_pattern #(
-    .COORDSPC(COORDSPC),
-    .COLSPC  (COLSPC)
-  ) fg (
-    .red  (_red),
-    .green(_green),
-    .blue (_blue),
-    .*
+  logic [23:0] tp0_rgb;
+  video_test_pattern_0 tp0 (
+      .*,
+      .rgb_data(tp0_rgb)
+  );
+  logic [23:0] tp1_rgb;
+  video_test_pattern_1 tp1 (
+      .*,
+      .rgb_data(tp1_rgb)
   );
 
   always_ff @(posedge pixel_clk) begin
-    red   <= video_enable ? COLSPC'(_red) : COLSPC'(0);
-    green <= video_enable ? COLSPC'(_green) : COLSPC'(0);
-    blue  <= video_enable ? COLSPC'(_blue) : COLSPC'(0);
+    rgb_data <= pattern_sel[0] ? tp1_rgb : tp0_rgb;
   end
 
 endmodule
