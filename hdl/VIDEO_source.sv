@@ -29,8 +29,6 @@ module video_source (
       .rgb_data(tp1_rgb)
   );
 
-  always_ff @(posedge pixel_clk) begin
-    rgb_data <= pattern_sel[0] ? tp1_rgb : tp0_rgb;
-  end
+  assign rgb_data = pattern_sel[0] ? tp1_rgb : tp0_rgb;
 
 endmodule

@@ -88,11 +88,5 @@ module sim (
   );
 
   assign rgb_data = sw[0] ? tp1_rgb : tp0_rgb;
-  //assign rgb_data = tp1_rgb;
-
-  // always_ff @(posedge pixel_clk) begin
-  //   $display("pattern_sel %0d", pattern_sel);
-  //   //   //rgb_data <= pattern_sel[0] ? tp1_rgb : tp0_rgb;
-  // end
 
 endmodule
