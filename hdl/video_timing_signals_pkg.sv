@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 // ============================================================================
 // File: video_timing_signals_pkg.sv
 // Description: Video constants and timing parameters

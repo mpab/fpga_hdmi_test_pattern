@@ -3,9 +3,7 @@
 // File: video_test_pattern_0.sv
 // Description: Video test pattern (horizontal colored bars)
 // ============================================================================
-module video_test_pattern_0
-  import video_timing_signals_pkg::*;
-(
+module video_test_pattern_0 (
     input  logic        pixel_clk,
     input  logic        pixel_rst_n,  // Synchronized to pixel_clk
     input  logic [ 1:0] res_sel,
@@ -18,12 +16,14 @@ module video_test_pattern_0
     input  logic        line_start,
     output logic [23:0] rgb_data      // 3x8 bits
 );
+  import video_timing_signals_pkg::*;
+  video_timing_signals_pkg::video_timing_t cfg;
+  assign cfg = get_video_timing(res_sel);
+
   logic [11:0] bar_width;
-  logic [2:0] bar_idx;
+  logic [ 2:0] bar_idx;
   logic [23:0] bar_rgb;
 
-  video_timing_t cfg;
-  assign cfg = get_video_timing(res_sel);
   assign bar_width = cfg.h_active >> 3;  // Divide active width by 8
   always_comb begin
     if (pixel_x < bar_width * 1) bar_idx = 3'd0;  // White

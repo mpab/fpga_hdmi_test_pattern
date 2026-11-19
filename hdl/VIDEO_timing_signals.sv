@@ -1,10 +1,9 @@
+`timescale 1ns / 1ps
 // ============================================================================
 // File: video_timing_signals.sv
 // Description: Multi-resolution VESA/CEA video timing signals generator.
 // ============================================================================
-module video_timing_signals
-  import video_timing_signals_pkg::*;
-(
+module video_timing_signals (
     input  logic        pixel_clk,
     input  logic        pixel_rst_n,  // Synchronized to pixel_clk
     input  logic [ 1:0] res_sel,
@@ -16,7 +15,8 @@ module video_timing_signals
     output logic        frame_start,
     output logic        line_start
 );
-  video_timing_t cfg;
+  import video_timing_signals_pkg::*;
+  video_timing_signals_pkg::video_timing_t cfg;
   assign cfg = get_video_timing(res_sel);
 
   logic [11:0] h_total, v_total;
@@ -24,7 +24,7 @@ module video_timing_signals
   assign v_total = cfg.v_active + cfg.v_fp + cfg.v_sync + cfg.v_bp;
 
   // TODO: re-test this
-  assign frame_start = (pixel_y == v_total - 1) && (pixel_y == h_total - 1);
+  assign frame_start = (pixel_y == v_total - 1) && (pixel_x == h_total - 1);
   assign line_start = (pixel_x == h_total - 1);
 
   logic [11:0] h_cnt, v_cnt;

@@ -39,8 +39,8 @@ module top_hdmi_ (
   reg [3:0] btnq3;
 
   // last valid button press/current LED pattern
-  reg [3:0] latch;
-  assign led = latch;
+  reg [3:0] btn_latch;
+  assign led = btn_latch;
 
   reg [1:0] res_sel;
 
@@ -62,22 +62,22 @@ module top_hdmi_ (
   // button press handler
   always @(posedge sys_clk or negedge sys_reset_n) begin
     if (~sys_reset_n) begin
-      latch <= B2;  // sys_reset_n == 0: default pattern
+      btn_latch <= B2;  // sys_reset_n == 0: default pattern
       res_sel <= 2;
     end else begin
       // detect exactly one debounced button press and only react to changes
       if (btnq0 == btnq1 == btnq2 == btnq3) begin
-        if ((btnq0 == B0) && (B0 != latch)) begin
-          latch   <= B0;
+        if ((btnq0 == B0) && (B0 != btn_latch)) begin
+          btn_latch   <= B0;
           res_sel <= 0;
-        end else if ((btnq0 == B1) && (B1 != latch)) begin
-          latch   <= B1;
+        end else if ((btnq0 == B1) && (B1 != btn_latch)) begin
+          btn_latch   <= B1;
           res_sel <= 1;
-        end else if ((btnq0 == B2) && (B2 != latch)) begin
-          latch   <= B2;
+        end else if ((btnq0 == B2) && (B2 != btn_latch)) begin
+          btn_latch   <= B2;
           res_sel <= 2;
-        end else if ((btnq0 == B3) && (B3 != latch)) begin
-          latch   <= B3;
+        end else if ((btnq0 == B3) && (B3 != btn_latch)) begin
+          btn_latch   <= B3;
           res_sel <= 3;
         end
       end

@@ -1,6 +1,7 @@
-#include "_sdl.h"
-#include <verilated.h>
 #include "Vsim.h"
+#include "_sdl.h"
+#include <vector>
+#include <verilated.h>
 
 double sc_time_stamp();
 
@@ -8,12 +9,34 @@ namespace sim {
 
 extern vluint64_t main_time; // Current simulation time
 
+void print_sw(std::vector<bool> sw) {
+  SDL_Log("sw=%s-%s\n", sw[1] ? "U" : "D", sw[0] ? "U" : "D");
+}
+
+void print_btn(std::vector<bool> btn) {
+  SDL_Log("btn=%s-%s-%s-%s\n", btn[3] ? "1" : "0", btn[2] ? "1" : "0",
+          btn[1] ? "1" : "0", btn[0] ? "1" : "0");
+}
+
 static inline int _main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
-  auto sdl = _sdl::SDL();
   auto hw = Vsim();
 
+  std::vector<bool> sw(2);
+  std::vector<bool> btn = {1, 0, 0, 0};
+
+  hw.pixel_clk = 1;
+  hw.pixel_rst_n = 0;
+  hw.eval();
+  hw.btn = 1;
+  hw.sw = 0;
+  hw.pixel_clk = 0;
+  hw.pixel_rst_n = 1;
+  hw.eval();
+
+  SDL_Log("hw.h_res=%d, hw.v_res=%d\n", hw.h_res, hw.v_res);
+  auto sdl = _sdl::SDL(hw.h_res, hw.v_res);
   bool full_screen = false;
 
   const Uint8 *keyb_state = (Uint8 *)SDL_GetKeyboardState(NULL);
@@ -23,30 +46,27 @@ static inline int _main(int argc, char *argv[]) {
   }
 
   SDL_Log("Simulation running. 'S' toggle full screen/window. 'Q' or ESC to "
-          "exit.\n\n");
+          "exit.\n");
+  SDL_Log("INS/DEL=SW1 UP/DOWN, HOME/END=SW0 UP/DOWN\n");
+  SDL_Log("F9-F12=btn[3]-btn[0]\n\n");
+  print_sw(sw);
+  print_btn(btn);
 
   uint64_t frame_count = 0;
   uint64_t start_ticks = SDL_GetPerformanceCounter();
 
   int PREV_SDL_SCANCODE_S = 0;
 
-  hw.clk = 1;
-  hw.reset = 1;
-  hw.eval();
-  hw.clk = 0;
-  hw.reset = 0;
-  hw.eval();
-
   while (true) {
     ++main_time;
     // cycle the clock
-    hw.clk = 1;
+    hw.pixel_clk = 1;
     hw.eval();
-    hw.clk = 0;
+    hw.pixel_clk = 0;
     hw.eval();
 
-    if (hw.video_enable) {
-      auto *p = &sdl.screenbuffer[hw.beam_y * _sdl::H_RES + hw.beam_x];
+    if (hw.de) {
+      auto *p = &sdl.screenbuffer[hw.pixel_y * hw.h_res + hw.pixel_x];
       p->a = 0xFF; // transparency
       p->b = hw.blue;
       p->g = hw.green;
@@ -69,6 +89,40 @@ static inline int _main(int argc, char *argv[]) {
       }
       PREV_SDL_SCANCODE_S = keyb_state[SDL_SCANCODE_S];
 
+      auto osw = sw;
+      if (keyb_state[SDL_SCANCODE_INSERT]) {
+        sw[1] = true;
+      }
+      if (keyb_state[SDL_SCANCODE_DELETE]) {
+        sw[1] = false;
+      }
+      if (keyb_state[SDL_SCANCODE_HOME]) {
+        sw[0] = true;
+      }
+      if (keyb_state[SDL_SCANCODE_END]) {
+        sw[0] = false;
+      }
+      if (not std::equal(std::begin(sw), std::end(sw), std::begin(osw))) {
+        hw.sw = sw[0] + (sw[1] << 1);
+        print_sw(sw);
+      }
+
+      auto obtn = btn;
+      if (keyb_state[SDL_SCANCODE_F12]) {
+        btn = {true, false, false, false};
+      } else if (keyb_state[SDL_SCANCODE_F11]) {
+        btn = {false, true, false, false};
+      } else if (keyb_state[SDL_SCANCODE_F10]) {
+        btn = {false, false, true, false};
+      } else if (keyb_state[SDL_SCANCODE_F9]) {
+        btn = {false, false, false, true};
+      }
+
+      if (not std::equal(std::begin(btn), std::end(btn), std::begin(obtn))) {
+        hw.btn = btn[0] + btn[1] << 1 + btn[2] << 2 + btn[3] << 3;
+        print_btn(btn);
+      }
+
       sdl.render();
       frame_count++;
     }
@@ -82,4 +136,4 @@ static inline int _main(int argc, char *argv[]) {
   return 0;
 }
 
-}
+} // namespace sim

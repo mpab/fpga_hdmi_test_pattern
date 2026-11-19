@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 // ============================================================================
 // File: globals_pkg.sv
 // Description: global types, constants, etc.
