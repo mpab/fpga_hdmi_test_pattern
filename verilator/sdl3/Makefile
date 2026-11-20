@@ -7,7 +7,12 @@ SDL_CFLAGS = "-I${SDL3_DIR}/include"
 ifeq ($(OS), Windows_NT)
 	SDL_LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3 -mconsole
 else
-	SDL_LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3
+	UNAME_S = $(shell uname -s)
+    ifeq ($(UNAME_S),Darwin)
+        SDL_LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3 -rpath $(SDL3_DIR)/lib
+	else
+		SDL_LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3
+    endif
 endif
 
 MB_VERILATOR_OUT_DIR := $(MB_VERILATOR_OPT)_make_sdl3
