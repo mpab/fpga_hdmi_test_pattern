@@ -3,34 +3,34 @@
 // File: sim.sv
 // Description: Proxy for video source(s)
 // ============================================================================
-module sim (
+module sim
+  import globals_pkg::*;
+  import video_timing_signals_pkg::*;
+(
     // board I/O
     input  wire [1:0] sw,
     input  wire [3:0] btn,
     output wire [3:0] led,
 
     // standard video I/O
-    input  wire         pixel_clk,
-    input  wire         pixel_rst_n,  // Synchronized to pixel_clk
-    output logic        hsync,
-    output logic        vsync,
-    output logic        de,           // Display Enable
-    output logic [11:0] pixel_x,
-    output logic [11:0] pixel_y,
-    output logic        frame_start,
-    output logic        line_start,
-    output logic [23:0] rgb_data,     // 3x8 bits
+    input  wire                     pixel_clk,
+    input  wire                     pixel_rst_n,  // synchronized to pixel_clk
+    output logic                    h_sync,
+    output logic                    v_sync,
+    output logic                    de,           // display enable
+    output logic [  COORD_BITS-1:0] beam_x,
+    output logic [  COORD_BITS-1:0] beam_y,
+    output logic                    frame_start,
+    output logic                    line_start,
+    output logic [3*COLOR_BITS-1:0] rgb_data,     // 3x8 bits rgb = 24 bit color
 
     // customizations
-    output logic [11:0] h_res,
-    output logic [11:0] v_res,
-    output logic [ 7:0] red,
-    output logic [ 7:0] green,
-    output logic [ 7:0] blue
+    output logic [COORD_BITS-1:0] h_res,
+    output logic [COORD_BITS-1:0] v_res,
+    output logic [COLOR_BITS-1:0] red,
+    output logic [COLOR_BITS-1:0] green,
+    output logic [COLOR_BITS-1:0] blue
 );
-  import globals_pkg::*;
-  import video_timing_signals_pkg::*;
-
   // one-hot button/LED patterns
   localparam BOFF = 4'b0000;
   localparam B0   = 4'b0001;
@@ -46,7 +46,7 @@ module sim (
   // button press handler
   always @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (~pixel_rst_n) begin
-      btn_latch <= B0;  // pixel_rst_n == 0: default pattern
+      btn_latch <= B1;  // pixel_rst_n == 0: default pattern
       res_sel   <= globals_pkg::RES_DEFAULT;
     end else begin
       // detect exactly one debounced button press and only react to changes
@@ -69,19 +69,20 @@ module sim (
   video_timing_signals_pkg::video_timing_t cfg;
   video_timing_signals timing_signals (.*);
   assign cfg   = get_video_timing(res_sel);
-  assign red   = rgb_data[23:16];
-  assign green = rgb_data[15:8];
-  assign blue  = rgb_data[7:0];
+  assign red   = rgb_data[3*COLOR_BITS-1:2*COLOR_BITS];
+  assign green = rgb_data[2*COLOR_BITS-1:COLOR_BITS];
+  assign blue  = rgb_data[COLOR_BITS-1:0];
 
-  assign h_res = cfg.h_active;
-  assign v_res = cfg.v_active;
+  assign h_res = cfg.h_res;
+  assign v_res = cfg.v_res;
+  logic h_blank, v_blank, beam_at_zero, signals_valid, video_enable;
 
-  logic [23:0] tp0_rgb;
+  logic [3*COLOR_BITS-1:0] tp0_rgb;
   video_test_pattern_0 tp0 (
       .*,
       .rgb_data(tp0_rgb)
   );
-  logic [23:0] tp1_rgb;
+  logic [3*COLOR_BITS-1:0] tp1_rgb;
   video_test_pattern_1 tp1 (
       .*,
       .rgb_data(tp1_rgb)

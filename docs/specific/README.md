@@ -15,3 +15,7 @@ Change test pattern using slide switches.
 
 ![Vivado Design](./docs/specific/vivado_block_design.png)
 
+## MiSTer
+
+Change test pattern using user button.
+

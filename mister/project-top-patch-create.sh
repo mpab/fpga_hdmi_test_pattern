@@ -1,11 +1,6 @@
 #!/usr/bin/env sh
 
-ENV_FP="$(dirname $(realpath $0))/mister_env.sh"
-if [ ! -f "$ENV_FP" ]; then
-    echo "ERROR - no script: $ENV_FP"
-    exit
-fi
-. "$ENV_FP"
-
-SRC_PATH="$(dirname $(dirname $(realpath $0)))/src"
-diff -u "${QUARTUS_PROJECT_NAME}/${QUARTUS_PROJECT_NAME}.sv-bak" "${SRC_PATH}/top.sv" > "${SRC_PATH}/top.sv.patch"
+rm -rf "./mister/hdl/top.sv.patch"
+diff -d "./out/Template_MiSTer/Template.sv" "./mister/hdl/reference-top.sv" > "./mister/hdl/top.sv.patch"
+# mitigates 'Reversed (or previously applied) patch detected!  Assume -R? [n] n'
+dos2unix "./mister/hdl/top.sv.patch"

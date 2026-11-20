@@ -42,19 +42,19 @@ module top_hdmi (
   assign serdes_rst  = ~rst_sync_chain[2];  // Active-high synchronous release
 
   // Video Timing
-  logic hsync, vsync, de;
-  logic [11:0] pixel_x, pixel_y;
+  logic h_sync, v_sync, de;
+  logic [11:0] beam_x, beam_y;
   logic [23:0] rgb_data;
 
   video_timing_signals u_timing_signals (
       .pixel_clk  (pixel_clk),
       .pixel_rst_n(pixel_rst_n),
       .res_sel    (res_sel),
-      .hsync      (hsync),
-      .vsync      (vsync),
+      .h_sync     (h_sync),
+      .v_sync     (v_sync),
       .de         (de),
-      .pixel_x    (pixel_x),
-      .pixel_y    (pixel_y)
+      .beam_x     (beam_x),
+      .beam_y     (beam_y)
   );
 
   // Pattern Generator(s)
@@ -69,7 +69,7 @@ module top_hdmi (
       .pixel_clk  (pixel_clk),
       .pixel_rst_n(pixel_rst_n),
       .vd         (rgb_data[7:0]),
-      .cd         ({vsync, hsync}),
+      .cd         ({v_sync, h_sync}),
       .vde        (de),
       .tmds_out   (tmds_blue)
   );

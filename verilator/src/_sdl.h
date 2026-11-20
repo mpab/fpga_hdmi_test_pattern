@@ -1,6 +1,6 @@
 #pragma once
 
-#include <span>
+#include <memory>
 #include <stdexcept>
 
 #if !defined(MB_SDL_VER_OPT)
@@ -34,14 +34,12 @@ typedef struct { // for SDL texture
 
 struct SDL {
   virtual ~SDL() {
-    delete [] screenbuffer;
     exit();
   }
 
   unsigned int h_res, v_res;
-
   Pixel *screenbuffer;
-  // std::span<Pixel> screenbuffer;
+  std::unique_ptr<Pixel[]> screenbuffer_mem;
 
   SDL_Window *_window = NULL;
   SDL_Renderer *_renderer = NULL;
@@ -73,7 +71,8 @@ struct SDL {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       error("SDL init failed");
     }
-    screenbuffer = new Pixel[h_res * v_res];
+    screenbuffer_mem = std::unique_ptr<Pixel[]>(new Pixel[h_res * v_res]);
+    screenbuffer = screenbuffer_mem.get();
 
     _window = SDL_CreateWindow("verilator_SDL2", SDL_WINDOWPOS_CENTERED,
                                SDL_WINDOWPOS_CENTERED, h_res, v_res,
@@ -110,7 +109,8 @@ struct SDL {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
       error("SDL init failed");
     }
-    screenbuffer = new Pixel[h_res * v_res];
+    screenbuffer_mem = std::unique_ptr<Pixel[]>(new Pixel[h_res * v_res]);
+    screenbuffer = screenbuffer_mem.get();
 
     // int display = -1;
     // auto pDM = SDL_GetDesktopDisplayMode((++display) + 1);

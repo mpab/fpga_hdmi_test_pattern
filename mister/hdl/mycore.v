@@ -1,61 +1,78 @@
 /**
-* hdmi overlay demo
+* adapter to application rtl
 */
 
-module mycore #(
-    parameter VID_COORD_BITS = 16,
-    parameter VID_COLOR_BITS   = 10
-) (
+module mycore (
     input clk,
     input reset,
 
+    input pal,
     input scandouble,
+    input [1:0] buttons,
 
     output reg ce_pix,
-    output     beam_at_zero,
+    output     hvcnt_atzero,
 
     output reg HBlank,
     output reg HSync,
     output reg VBlank,
     output reg VSync,
 
-    output [VID_COLOR_BITS-1:0] red,
-    output [VID_COLOR_BITS-1:0] green,
-    output [VID_COLOR_BITS-1:0] blue
+    output reg [3*COLOR_BITS-1:0] rgb_data  // 3x8 bits rgb = 24 bit color
 );
+  import globals_pkg::*;
+  import video_timing_signals_pkg::*;
 
-  logic video_enable, frame_start, line_start;
-  logic [11:0] beam_x;
-  logic [11:0] beam_y;
+  logic de, frame_start, line_start;
+  logic [globals_pkg::COORD_BITS-1:0] beam_x;
+  logic [globals_pkg::COORD_BITS-1:0] beam_y;
+  logic [1:0] res_sel;
+  logic [1:0] pattern_sel;
+  logic user_button;
+  assign user_button = buttons[1];
 
-  videotiming_signals video_signals (
-      .pixel_clk(clk),
-      .sys_reset_n(~reset),
-      .signals_valid(ce_pix),
-      .video_enable(video_enable),
-      .beam_at_zero(beam_at_zero),
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      res_sel <= RES_1280x720_60;
+    end else begin
+      if (scandouble) ce_pix <= 1;
+      else ce_pix <= ~ce_pix;
+    end
+  end
+
+  always_ff @(posedge user_button) begin
+    pattern_sel <= pattern_sel ? 0 : 1;
+  end
+
+  video_timing_signals vts (
+      .pixel_clk(ce_pix),
+      .pixel_rst_n(~reset),
+      .res_sel(res_sel),
       .h_sync(HSync),
       .v_sync(VSync),
       .h_blank(HBlank),
       .v_blank(VBlank),
-      .frame_start(frame_start),
-      .line_start(line_start),
-      .beam_x(beam_x),
-      .beam_y(beam_y)
-  );
-
-  videosource video_source (
-      .pixel_clk(clk),
-      .video_enable(video_enable),
-      .h_sync(HSync),
-      .v_sync(VSync),
-      .frame_start(frame_start),
-      .line_start(line_start),
+      .de(de),
       .beam_x(beam_x),
       .beam_y(beam_y),
-      .red(red),
-      .green(green),
-      .blue(blue)
+      .beam_at_zero(hvcnt_atzero),
+      .frame_start(frame_start),
+      .line_start(line_start)
+  );
+
+  video_source vs (
+      .pixel_clk(clk),
+      .pixel_rst_n(~reset),
+      .res_sel(res_sel),
+      .pattern_sel(pattern_sel),
+      .h_sync(HSync),
+      .v_sync(VSync),
+      .de(ce_pix),
+      .beam_x(beam_x),
+      .beam_y(beam_y),
+      .frame_start(frame_start),
+      .line_start(line_start),
+      .rgb_data(rgb_data)
   );
 
 endmodule

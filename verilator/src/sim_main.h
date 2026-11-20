@@ -18,22 +18,30 @@ void print_btn(std::vector<bool> btn) {
           btn[1] ? "1" : "0", btn[0] ? "1" : "0");
 }
 
+void reset(Vsim &hw) {
+  hw.pixel_clk = 0;
+  hw.pixel_rst_n = 0;
+  hw.eval();
+
+  hw.pixel_clk = 1;
+  hw.eval();
+
+  hw.pixel_clk = 0;
+  hw.pixel_rst_n = 1;
+  hw.eval();
+
+  hw.pixel_clk = 1;
+  hw.eval();
+}
+
 static inline int _main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
   auto hw = Vsim();
+  reset(hw);
 
   std::vector<bool> sw(2);
-  std::vector<bool> btn = {1, 0, 0, 0};
-
-  hw.pixel_clk = 1;
-  hw.pixel_rst_n = 0;
-  hw.eval();
-  hw.btn = 1;
-  hw.sw = 0;
-  hw.pixel_clk = 0;
-  hw.pixel_rst_n = 1;
-  hw.eval();
+  std::vector<bool> btn = {hw.led & 1, hw.led & 2, hw.led & 4, hw.led & 8};//  {1, 0, 0, 0};
 
   SDL_Log("hw.h_res=%d, hw.v_res=%d\n", hw.h_res, hw.v_res);
   auto sdl = _sdl::SDL(hw.h_res, hw.v_res);
@@ -66,7 +74,7 @@ static inline int _main(int argc, char *argv[]) {
     hw.eval();
 
     if (hw.de) {
-      auto *p = &sdl.screenbuffer[hw.pixel_y * hw.h_res + hw.pixel_x];
+      auto *p = &sdl.screenbuffer[hw.beam_y * hw.h_res + hw.beam_x];
       p->a = 0xFF; // transparency
       p->b = hw.blue;
       p->g = hw.green;
@@ -119,7 +127,7 @@ static inline int _main(int argc, char *argv[]) {
       }
 
       if (not std::equal(std::begin(btn), std::end(btn), std::begin(obtn))) {
-        hw.btn = btn[0] + btn[1] << 1 + btn[2] << 2 + btn[3] << 3;
+        hw.btn = btn[0] + (btn[1] << 1) + (btn[2] << 2) + (btn[3] << 3);
         print_btn(btn);
       }
 

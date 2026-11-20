@@ -21,5 +21,7 @@
 - Xilinx
   - [ ] Reinstate bitstream programming
   - [ ] Support multiple Xilinx platforms (Pynq-Z2, Z-turn, ...)
+- MiSTer
+  - [ ] Detect display resolution
 - Gowin
   - [ ] Support Tang Nano 20K

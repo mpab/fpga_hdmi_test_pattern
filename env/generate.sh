@@ -128,7 +128,13 @@ MB_MISTER_OUT_RBF_FP="\${MB_MISTER_OUT_OUTPUT_FILES_PATH}\${MB_MISTER_OPT}.rbf"
 
 # ============================================================================================================
 # verilator and sanity checks
-check_path_exp VERILATOR_ROOT
+VERILATOR_CMD=$(command -v verilator)
+if [ -z "${VERILATOR_CMD}" ]; then
+  pwrn "verilator not found\n"
+else
+  VERILATOR_ROOT=$(verilator --getenv VERILATOR_ROOT)
+  check_path_exp VERILATOR_ROOT
+fi
 
 MB_VERILATOR_OPT="verilator"
 
