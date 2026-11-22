@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 FP=$(realpath $0) ; PTH=$(dirname "${FP}") ; ENV_SH="${PTH}/env.sh" ; . "${ENV_SH}"
 
-XILINX_CMD=$(command -v xilinx)
-[ -z "${XILINX_CMD}" ] && perr "xilinx utility is required to run this script\n" && exit
+XILINX_CMD=$(command -v xilinx-use)
+[ -z "${XILINX_CMD}" ] && perr "xilinx-use utility is required to run this script\n" && exit
 
 check_build () {
   . xilinx-use "$1" >/dev/null

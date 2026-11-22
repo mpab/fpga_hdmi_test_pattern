@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+FP=$(realpath $0) ; PTH=$(dirname "${FP}") ; _ENV_SH="${PTH}/_env.sh" ; . "${_ENV_SH}"
+
+SDL_VDIR="SDL${MB_SDL_VER_OPT}_DIR"
+SDL_INC_PATH="${!SDL_VDIR}/include/"
+
+[ ! -d "${SDL_INC_PATH}" ] && echo "ERROR: ${SDL_INC_PATH} is not a directory" && exit
+
+if [ "$MB_DISTRO_NAME" = "MINGW64_NT" ]; then
+  MB_VERILATOR_PROJ_SRC_PATH=$(cygpath -m "${MB_VERILATOR_PROJ_SRC_PATH}")
+  MB_VERILATOR_OUT_PATH=$(cygpath -m "${MB_VERILATOR_OUT_PATH}")
+  SDL_INC_PATH=$(cygpath -m "${SDL_INC_PATH}")
+  VERILATOR_INC_PATH=$(cygpath -m "${VERILATOR_ROOT}/include/")
+fi
+
+# echo VERILATOR_PROJ_SRC_PATH $VERILATOR_PROJ_SRC_PATH
+# echo VERILATOR_OUT_PATH $VERILATOR_OUT_PATH
+# echo SDL_INC_DIR $SDL_INC_DIR
+
+DOT_CLANGD=${
+echo "\
+CompileFlags: 
+  Add: 
+    - -std=c++17 
+    - -I${MB_VERILATOR_PROJ_SRC_PATH}
+    - -I${MB_VERILATOR_OUT_PATH}
+    - -I${SDL_INC_PATH}
+    - -I${VERILATOR_INC_PATH}
+    - -DMB_SDL_VER_OPT=${MB_SDL_VER_OPT}"
+}
+
+rm -rf "${MB_APP_ROOT}.clangd"
+echo "${DOT_CLANGD}" > "${MB_APP_ROOT}.clangd"
+
+rm -rf "${MB_APP_ROOT}.clang-format"
+clang-format -style=llvm -dump-config > "${MB_APP_ROOT}.clang-format"

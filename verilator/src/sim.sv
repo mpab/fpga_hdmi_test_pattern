@@ -29,7 +29,10 @@ module sim
     output logic [COORD_BITS-1:0] v_res,
     output logic [COLOR_BITS-1:0] red,
     output logic [COLOR_BITS-1:0] green,
-    output logic [COLOR_BITS-1:0] blue
+    output logic [COLOR_BITS-1:0] blue,
+
+    output logic [COORD_BITS-1:0] h_total,
+    output logic [COORD_BITS-1:0] v_total
 );
   // one-hot button/LED patterns
   localparam BOFF = 4'b0000;
@@ -66,8 +69,11 @@ module sim
     end
   end
 
+  assign h_total = cfg.h_res + cfg.h_fp + cfg.h_sync + cfg.h_bp;
+  assign v_total = cfg.v_res + cfg.v_fp + cfg.v_sync + cfg.v_bp;
+
   video_timing_signals_pkg::video_timing_t cfg;
-  video_timing_signals timing_signals (.*);
+  video_timing_signals vts (.*);
   assign cfg   = get_video_timing(res_sel);
   assign red   = rgb_data[3*COLOR_BITS-1:2*COLOR_BITS];
   assign green = rgb_data[2*COLOR_BITS-1:COLOR_BITS];
@@ -75,6 +81,8 @@ module sim
 
   assign h_res = cfg.h_res;
   assign v_res = cfg.v_res;
+  //assign h_total = vts.h_total;
+  //assign v_total = vts.v_total;
   logic h_blank, v_blank, beam_at_zero, signals_valid, video_enable;
 
   logic [3*COLOR_BITS-1:0] tp0_rgb;
@@ -87,7 +95,34 @@ module sim
       .*,
       .rgb_data(tp1_rgb)
   );
+  logic [3*COLOR_BITS-1:0] tp2_rgb;
+  video_test_pattern_2 tp2 (
+      .*,
+      .rgb_data(tp2_rgb)
+  );
+  logic [3*COLOR_BITS-1:0] tp3_rgb;
+  video_test_pattern_3 tp3 (
+      .*,
+      .rgb_data(tp3_rgb)
+  );
 
-  assign rgb_data = sw[0] ? tp1_rgb : tp0_rgb;
+  // NOTE: combinational logic works on xilinx and verilator, not on mister
+  // always_ff @(posedge pixel_clk) begin
+  //   unique case (sw)
+  //     2'b00: rgb_data <= tp0_rgb;
+  //     2'b01: rgb_data <= tp1_rgb;
+  //     2'b10: rgb_data <= tp2_rgb;
+  //     2'b11: rgb_data <= tp3_rgb;
+  //   endcase
+  // end
+
+  always_comb begin
+    unique case (sw)
+      2'b00: rgb_data = tp0_rgb;
+      2'b01: rgb_data = tp1_rgb;
+      2'b10: rgb_data = tp2_rgb;
+      2'b11: rgb_data = tp3_rgb;
+    endcase
+  end
 
 endmodule

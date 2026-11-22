@@ -28,49 +28,31 @@ module video_timing_signals (
   assign h_total = cfg.h_res + cfg.h_fp + cfg.h_sync + cfg.h_bp;
   assign v_total = cfg.v_res + cfg.v_fp + cfg.v_sync + cfg.v_bp;
 
-  logic [globals_pkg::COORD_BITS-1:0] h_cnt, v_cnt;
-  assign frame_start = (v_cnt == v_total - 1) && (h_cnt == h_total - 1);
-  assign line_start = (h_cnt == h_total - 1);
-  assign beam_at_zero = (h_cnt == 0) && (v_cnt == 0);
-  assign h_blank = h_cnt < cfg.h_res ? 0 : 1;  // unsigned, no need for lower bounds-check
-  assign v_blank = v_cnt < cfg.v_res ? 0 : 1;
+  assign frame_start = (beam_y == v_total - 1) && (beam_x == h_total - 1);
+  assign line_start = (beam_x == h_total - 1);
+  assign beam_at_zero = (beam_x == 0) && (beam_y == 0);
+  assign h_blank = beam_x < cfg.h_res ? 0 : 1;  // unsigned, no need for lower bounds-check
+  assign v_blank = beam_y < cfg.v_res ? 0 : 1;
+  assign h_sync = (beam_x >= (cfg.h_res + cfg.h_fp)) &&
+                (beam_x < (cfg.h_res + cfg.h_fp + cfg.h_sync)) ?
+                cfg.h_pol : !cfg.h_pol;
+  assign v_sync = (beam_y >= (cfg.v_res + cfg.v_fp)) &&
+                (beam_y < (cfg.v_res + cfg.v_fp + cfg.v_sync)) ?
+                cfg.v_pol : !cfg.v_pol;
+  assign de = (beam_x < cfg.h_res) && (beam_y < cfg.v_res);
 
   always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (!pixel_rst_n) begin
-      h_cnt <= 0;
-      v_cnt <= 0;
+      beam_x <= h_total;
+      beam_y <= v_total;
     end else begin
-      if (h_cnt >= h_total - 1) begin
-        h_cnt <= 0;
-        if (v_cnt >= v_total - 1) v_cnt <= 0;
-        else v_cnt <= v_cnt + 1;
+      if (beam_x >= h_total - 1) begin
+        beam_x <= 0;
+        if (beam_y >= v_total - 1) beam_y <= 0;
+        else beam_y <= beam_y + 1;
       end else begin
-        h_cnt <= h_cnt + 1;
+        beam_x <= beam_x + 1;
       end
-    end
-  end
-
-  // Registered timing outputs (avoids combinational glitches into TMDS encoder)
-  logic hsync_raw, vsync_raw, de_raw;
-  always_comb begin
-    de_raw = (h_cnt < cfg.h_res) && (v_cnt < cfg.v_res);
-    hsync_raw = (h_cnt >= (cfg.h_res + cfg.h_fp)) && (h_cnt < (cfg.h_res + cfg.h_fp + cfg.h_sync));
-    vsync_raw = (v_cnt >= (cfg.v_res + cfg.v_fp)) && (v_cnt < (cfg.v_res + cfg.v_fp + cfg.v_sync));
-  end
-
-  always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
-    if (!pixel_rst_n) begin
-      h_sync <= 1'b0;
-      v_sync <= 1'b0;
-      de     <= 1'b0;
-      beam_x <= 0;
-      beam_y <= 0;
-    end else begin
-      h_sync <= cfg.h_pol ? hsync_raw : ~hsync_raw;
-      v_sync <= cfg.v_pol ? vsync_raw : ~vsync_raw;
-      de     <= de_raw;
-      beam_x <= h_cnt;
-      beam_y <= v_cnt;
     end
   end
 

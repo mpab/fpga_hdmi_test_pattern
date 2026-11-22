@@ -2,6 +2,7 @@
 
 FP=$(realpath $0) ; PTH=$(dirname "${FP}") ; _ENV_SH="${PTH}/_env.sh" ; . "${_ENV_SH}"
 
+[ ! -d "${MB_MISTER_OUT_PATH}" ] && exit
 cd "${MB_MISTER_OUT_PATH}" || exit
 
 del () {

@@ -47,14 +47,8 @@ module video_test_pattern_0 (
       3'd6: bar_rgb = 24'h0000FF;
       3'd7: bar_rgb = 24'h000000;
     endcase
-  end
 
-  always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
-    if (!pixel_rst_n) begin
-      rgb_data <= 24'h000000;
-    end else begin
-      rgb_data <= de ? bar_rgb : 24'h000000;
-    end
+    rgb_data = de ? bar_rgb : 24'h000000;
   end
 
 endmodule

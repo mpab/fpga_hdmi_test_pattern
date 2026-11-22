@@ -28,15 +28,11 @@ module video_test_pattern_1 (
   logic [globals_pkg::COLOR_BITS-1:0] green;
   logic [globals_pkg::COLOR_BITS-1:0] blue;
 
-  always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
-    if (!pixel_rst_n) begin
-      rgb_data <= 0;
-    end else begin
-      red <= ({SX[5:0] & {6{SY[4:3] == ~SX[4:3]}}, 2'b0} | W) & ~A;
-      green <= (SX & {globals_pkg::COLOR_BITS{SY[6]}} | W) & ~A;
-      blue <= SY | W | A;
-      rgb_data <= de ? {red, green, blue} : 0;
-    end
+  always_comb begin
+    red = ({SX[5:0] & {6{SY[4:3] == ~SX[4:3]}}, 2'b0} | W) & ~A;
+    green = (SX & {globals_pkg::COLOR_BITS{SY[6]}} | W) & ~A;
+    blue = SY | W | A;
+    rgb_data = de ? {red, green, blue} : 0;
   end
 
 endmodule

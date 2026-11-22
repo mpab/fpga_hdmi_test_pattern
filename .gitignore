@@ -5,3 +5,5 @@ env/host_*
 *.log
 *.str
 .Xil/
+.clangd
+.clang-format

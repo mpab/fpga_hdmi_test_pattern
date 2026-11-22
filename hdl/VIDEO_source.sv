@@ -20,20 +20,34 @@ module video_source (
   import globals_pkg::*;
   import video_timing_signals_pkg::*;
 
-  logic [3*globals_pkg::COLOR_BITS-1:0] tp0_rgb;
+  logic [3*COLOR_BITS-1:0] tp0_rgb;
   video_test_pattern_0 tp0 (
       .*,
       .rgb_data(tp0_rgb)
   );
-  logic [3*globals_pkg::COLOR_BITS-1:0] tp1_rgb;
+  logic [3*COLOR_BITS-1:0] tp1_rgb;
   video_test_pattern_1 tp1 (
       .*,
       .rgb_data(tp1_rgb)
   );
+  logic [3*COLOR_BITS-1:0] tp2_rgb;
+  video_test_pattern_2 tp2 (
+      .*,
+      .rgb_data(tp2_rgb)
+  );
+  logic [3*COLOR_BITS-1:0] tp3_rgb;
+  video_test_pattern_3 tp3 (
+      .*,
+      .rgb_data(tp3_rgb)
+  );
 
-  // NOTE: combinational logic works on xilinx, but not on mister
-  always_ff @(posedge pixel_clk) begin
-    rgb_data <= pattern_sel[0] ? tp1_rgb : tp0_rgb;
+  always_comb begin
+    unique case (pattern_sel)
+      2'b00: rgb_data = tp0_rgb;
+      2'b01: rgb_data = tp1_rgb;
+      2'b10: rgb_data = tp2_rgb;
+      2'b11: rgb_data = tp3_rgb;
+    endcase
   end
 
 endmodule
