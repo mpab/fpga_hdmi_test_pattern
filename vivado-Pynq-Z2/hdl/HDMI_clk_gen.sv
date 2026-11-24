@@ -4,10 +4,7 @@
 //              Takes 125 MHz board clock (H16) and generates phase-aligned
 //              PixelClk (1x) and TmdsClk (5x DDR) on dedicated BUFGs.
 // ============================================================================
-module hdmi_clk_gen
-  import globals_pkg::*;
-  import hdmi_clk_gen_pkg::*;
-(
+module hdmi_clk_gen (
     input  logic       sys_clk_125m,  // Board 125 MHz oscillator (H16)
     input  logic       sys_rst_n,     // Active-low async reset
     input  logic [1:0] res_sel,       // Video resolution selector
@@ -15,6 +12,10 @@ module hdmi_clk_gen
     output logic       tmds_clk,      // 5x TMDS DDR Clock (BUFG)
     output logic       clk_locked     // High when MMCM is locked and DRP idle
 );
+  import globals_pkg::*;
+  import hdmi_clk_gen_pkg::*;
+  localparam [1:0] RES_DEFAULT = RES_800x600_60;
+
   // Synchronize res_sel into sys_clk_125m domain and detect changes
   logic [1:0] res_sync_0, res_sync_1, mode_active;
   always_ff @(posedge sys_clk_125m or negedge sys_rst_n) begin
@@ -100,7 +101,7 @@ module hdmi_clk_gen
   always_ff @(posedge sys_clk_125m or negedge sys_rst_n) begin
     if (!sys_rst_n) begin
       state       <= ST_IDLE;
-      mode_active <= RES_DEFAULT;
+      mode_active <= RES_DEFAULT;  // default, should be changed as soon as res_sel settles
       reg_idx     <= 3'd0;
       den         <= 1'b0;
       dwe         <= 1'b0;

@@ -17,19 +17,23 @@ module video_test_pattern_3 (
     output logic [3* globals_pkg::COLOR_BITS-1:0] rgb_data      // 3x8 bits rgb = 24 bit color
 );
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
+  import video_timing_pkg::*;
 
-  video_timing_signals_pkg::video_timing_t cfg;
+  video_timing_pkg::video_timing_t cfg;
   assign cfg = get_video_timing(res_sel);
 
+  logic [3* globals_pkg::COLOR_BITS-1:0] rgb_data_comb;
   always_comb begin
-    if (de) begin
-      rgb_data = (
+    rgb_data_comb = (
           (beam_x == 1) ||
           (beam_x == cfg.h_res - 2)) ||
           ((beam_y == 1) ||
-          (beam_y == cfg.v_res - 2)) ? 24'hFFFFFF : 24'h000000;
-    end else rgb_data = 24'h000000;
+          (beam_y == cfg.v_res - 2)) ? 24'hFFFFFF : 0;
+  end
+
+  // NOTE: each stage of sequential logic requires +1 compensation
+  always_ff @(posedge pixel_clk) begin
+    rgb_data <= rgb_data_comb;
   end
 
 endmodule

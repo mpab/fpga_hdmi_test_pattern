@@ -7,3 +7,4 @@ env/host_*
 .Xil/
 .clangd
 .clang-format
+obj_dir

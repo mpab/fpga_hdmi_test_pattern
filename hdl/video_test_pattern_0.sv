@@ -17,9 +17,9 @@ module video_test_pattern_0 (
     output logic [3* globals_pkg::COLOR_BITS-1:0] rgb_data      // 3x8 bits rgb = 24 bit color
 );
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
+  import video_timing_pkg::*;
 
-  video_timing_signals_pkg::video_timing_t cfg;
+  video_timing_pkg::video_timing_t cfg;
   assign cfg = get_video_timing(res_sel);
 
   logic [globals_pkg::COORD_BITS-1:0] bar_width;
@@ -47,8 +47,11 @@ module video_test_pattern_0 (
       3'd6: bar_rgb = 24'h0000FF;
       3'd7: bar_rgb = 24'h000000;
     endcase
+  end
 
-    rgb_data = de ? bar_rgb : 24'h000000;
+  // NOTE: each stage of sequential logic requires +1 compensation
+  always_ff @(posedge pixel_clk) begin
+    rgb_data <= bar_rgb;
   end
 
 endmodule

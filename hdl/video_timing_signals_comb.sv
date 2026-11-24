@@ -19,17 +19,15 @@ module video_timing_signals_comb (
     output logic                               line_start
 );
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
+  import video_timing_pkg::*;
 
-  video_timing_signals_pkg::video_timing_t cfg;
+  video_timing_pkg::video_timing_t cfg;
   assign cfg = get_video_timing(res_sel);
 
-  logic [globals_pkg::COORD_BITS-1:0] h_total, v_total;
-  assign h_total = cfg.h_res + cfg.h_fp + cfg.h_sync + cfg.h_bp;
-  assign v_total = cfg.v_res + cfg.v_fp + cfg.v_sync + cfg.v_bp;
+  // cfg.h_total / cfg.v_total are already initialized by get_video_timing().
 
-  assign frame_start = (beam_y == v_total - 1) && (beam_x == h_total - 1);
-  assign line_start = (beam_x == h_total - 1);
+  assign frame_start = (beam_y == cfg.v_total - 1) && (beam_x == cfg.h_total - 1);
+  assign line_start = (beam_x == cfg.h_total - 1);
   assign beam_at_zero = (beam_x == 0) && (beam_y == 0);
   assign h_blank = beam_x < cfg.h_res ? 0 : 1;  // unsigned, no need for lower bounds-check
   assign v_blank = beam_y < cfg.v_res ? 0 : 1;
@@ -43,12 +41,12 @@ module video_timing_signals_comb (
 
   always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (!pixel_rst_n) begin
-      beam_x <= h_total;
-      beam_y <= v_total;
+      beam_x <= cfg.h_total;
+      beam_y <= cfg.v_total;
     end else begin
-      if (beam_x >= h_total - 1) begin
+      if (beam_x >= cfg.h_total - 1) begin
         beam_x <= 0;
-        if (beam_y >= v_total - 1) beam_y <= 0;
+        if (beam_y >= cfg.v_total - 1) beam_y <= 0;
         else beam_y <= beam_y + 1;
       end else begin
         beam_x <= beam_x + 1;

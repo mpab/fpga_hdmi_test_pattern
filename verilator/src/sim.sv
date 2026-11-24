@@ -32,10 +32,19 @@ module sim (
     output logic [COORD_BITS-1:0] v_total
 );
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
+  import video_timing_pkg::*;
+
+  assign red   = rgb_data[3*COLOR_BITS-1:2*COLOR_BITS];
+  assign green = rgb_data[2*COLOR_BITS-1:COLOR_BITS];
+  assign blue  = rgb_data[COLOR_BITS-1:0];
+  video_timing_pkg::video_timing_t cfg;
+  assign cfg = get_video_timing(res_sel);
+  assign h_res = cfg.h_res;
+  assign v_res = cfg.v_res;
+  assign h_total = cfg.h_total;
+  assign v_total = cfg.v_total;
 
   // one-hot button/resolution select
-  localparam BOFF = 4'b0000;
   localparam B0   = 4'b0001;
   localparam B1   = 4'b0010;
   localparam B2   = 4'b0100;
@@ -49,8 +58,9 @@ module sim (
   // button press handler
   always @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (~pixel_rst_n) begin
-      btn_latch <= B1;  // pixel_rst_n == 0: default pattern
-      res_sel   <= globals_pkg::RES_DEFAULT;
+      // NOTE: these should be in synch
+      btn_latch <= B0;
+      res_sel   <= 0;
     end else begin
       // detect exactly one debounced button press and only react to changes
       if ((btn == B0) && (B0 != btn_latch)) begin
@@ -69,60 +79,12 @@ module sim (
     end
   end
 
-  assign h_total = cfg.h_res + cfg.h_fp + cfg.h_sync + cfg.h_bp;
-  assign v_total = cfg.v_res + cfg.v_fp + cfg.v_sync + cfg.v_bp;
+  logic h_blank, v_blank, beam_at_zero;
+  video_timing_signals_registered vts (.*);
 
-  video_timing_signals_pkg::video_timing_t cfg;
-  video_timing_signals_comb vts (.*);
-  assign cfg   = get_video_timing(res_sel);
-  assign red   = rgb_data[3*COLOR_BITS-1:2*COLOR_BITS];
-  assign green = rgb_data[2*COLOR_BITS-1:COLOR_BITS];
-  assign blue  = rgb_data[COLOR_BITS-1:0];
-
-  assign h_res = cfg.h_res;
-  assign v_res = cfg.v_res;
-  //assign h_total = vts.h_total;
-  //assign v_total = vts.v_total;
-  logic h_blank, v_blank, beam_at_zero, signals_valid, video_enable;
-
-  logic [3*COLOR_BITS-1:0] tp0_rgb;
-  video_test_pattern_0 tp0 (
+  video_source vs (
       .*,
-      .rgb_data(tp0_rgb)
+      .pattern_sel(sw)
   );
-  logic [3*COLOR_BITS-1:0] tp1_rgb;
-  video_test_pattern_1 tp1 (
-      .*,
-      .rgb_data(tp1_rgb)
-  );
-  logic [3*COLOR_BITS-1:0] tp2_rgb;
-  video_test_pattern_2 tp2 (
-      .*,
-      .rgb_data(tp2_rgb)
-  );
-  logic [3*COLOR_BITS-1:0] tp3_rgb;
-  video_test_pattern_3 tp3 (
-      .*,
-      .rgb_data(tp3_rgb)
-  );
-
-  // NOTE: combinational logic works on xilinx and verilator, not on mister
-  // always_ff @(posedge pixel_clk) begin
-  //   unique case (sw)
-  //     2'b00: rgb_data <= tp0_rgb;
-  //     2'b01: rgb_data <= tp1_rgb;
-  //     2'b10: rgb_data <= tp2_rgb;
-  //     2'b11: rgb_data <= tp3_rgb;
-  //   endcase
-  // end
-
-  always_comb begin
-    unique case (sw)
-      2'b00: rgb_data = tp0_rgb;
-      2'b01: rgb_data = tp1_rgb;
-      2'b10: rgb_data = tp2_rgb;
-      2'b11: rgb_data = tp3_rgb;
-    endcase
-  end
 
 endmodule

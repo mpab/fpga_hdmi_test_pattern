@@ -46,7 +46,7 @@ module top_hdmi (
   logic [11:0] beam_x, beam_y;
   logic [23:0] rgb_data;
 
-  video_timing_signals_comb vts (
+  video_timing_signals_registered vts (
       .pixel_clk  (pixel_clk),
       .pixel_rst_n(pixel_rst_n),
       .res_sel    (res_sel),

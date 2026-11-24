@@ -17,7 +17,7 @@ module video_test_pattern_1 (
     output logic [3* globals_pkg::COLOR_BITS-1:0] rgb_data      // 3x8 bits rgb = 24 bit color
 );
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
+  import video_timing_pkg::*;
 
   wire [globals_pkg::COLOR_BITS-1:0] SX = beam_x[globals_pkg::COLOR_BITS-1:0];
   wire [globals_pkg::COLOR_BITS-1:0] SY = beam_y[globals_pkg::COLOR_BITS-1:0];
@@ -29,10 +29,14 @@ module video_test_pattern_1 (
   logic [globals_pkg::COLOR_BITS-1:0] blue;
 
   always_comb begin
-    red = ({SX[5:0] & {6{SY[4:3] == ~SX[4:3]}}, 2'b0} | W) & ~A;
+    red   = ({SX[5:0] & {6{SY[4:3] == ~SX[4:3]}}, 2'b0} | W) & ~A;
     green = (SX & {globals_pkg::COLOR_BITS{SY[6]}} | W) & ~A;
-    blue = SY | W | A;
-    rgb_data = de ? {red, green, blue} : 0;
+    blue  = SY | W | A;
+  end
+
+  // NOTE: each stage of sequential logic requires +1 compensation
+  always_ff @(posedge pixel_clk) begin
+    rgb_data <= {red, green, blue};
   end
 
 endmodule

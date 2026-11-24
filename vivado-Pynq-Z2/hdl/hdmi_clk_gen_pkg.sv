@@ -27,7 +27,7 @@ package hdmi_clk_gen_pkg;
         16'h0514,
         16'h0000
     },
-    // RES_800x600_60 = RES_DEFAULT = 2'd1
+    // RES_800x600_60 = 2'd1
     // Mode 1: M=40 (VCO=1000MHz), O0=5 (200MHz), O1=25 (40MHz)
     '{
         16'h0514,
@@ -61,12 +61,11 @@ package hdmi_clk_gen_pkg;
   // NOTE: RES_1920x1080_30 == RES_1280x720_60
 
   function automatic mmcm_drp_cfg_t get_mmcm_cfg(input logic [1:0] mode);
-    case (mode)
+    unique case (mode)
       RES_640x480_60:  return MMCM_DRP_CFG[RES_640x480_60];
       RES_800x600_60:  return MMCM_DRP_CFG[RES_800x600_60];
       RES_1024x768_60: return MMCM_DRP_CFG[RES_1024x768_60];
       RES_1280x720_60: return MMCM_DRP_CFG[RES_1280x720_60];
-      default:         return MMCM_DRP_CFG[RES_DEFAULT];  // common index from globals_pkg.sv
     endcase
   endfunction
 

@@ -62,8 +62,9 @@ module top_hdmi_ (
   // button press handler
   always @(posedge sys_clk or negedge sys_reset_n) begin
     if (~sys_reset_n) begin
-      btn_latch <= B2;  // sys_reset_n == 0: default pattern
-      res_sel   <= 2;
+      // NOTE: these should be in synch
+      btn_latch <= B1;
+      res_sel   <= 1;
     end else begin
       // detect exactly one debounced button press and only react to changes
       if (btnq0 == btnq1 == btnq2 == btnq3) begin

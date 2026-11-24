@@ -21,7 +21,7 @@ module mycore (
     output reg [3*COLOR_BITS-1:0] rgb_data  // 3x8 bits rgb = 24 bit color
 );
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
+  import video_timing_pkg::*;
 
   logic de, frame_start, line_start;
   logic [globals_pkg::COORD_BITS-1:0] beam_x;
@@ -31,20 +31,21 @@ module mycore (
   logic user_button;
   assign user_button = buttons[1];
 
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      res_sel <= RES_1280x720_60;
-    end else begin
-      if (scandouble) ce_pix <= 1;
-      else ce_pix <= ~ce_pix;
-    end
+  // Advance the pixel clock even while reset is held.  The reset-release logic
+  // in reference-top.sv depends on the zero beam signal from vts, which can
+  // only be produced if ce_pix is ticking during reset.
+  always_ff @(posedge clk) begin
+    if (reset) res_sel <= RES_1280x720_60;
+    if (scandouble) ce_pix <= 1;
+    else ce_pix <= ~ce_pix;
   end
 
+  // cycle thru patterns
   always_ff @(posedge user_button) begin
-    pattern_sel <= pattern_sel ? 0 : 1;
+    pattern_sel <= (pattern_sel == 3) ? 0 : pattern_sel + 1;
   end
 
-  video_timing_signals_comb vts (
+  video_timing_signals_registered vts (
       .pixel_clk(ce_pix),
       .pixel_rst_n(~reset),
       .res_sel(res_sel),
@@ -60,14 +61,17 @@ module mycore (
       .line_start(line_start)
   );
 
+  // The source must be driven by the same pixel clock as the timing signal
+  // generator; otherwise patterns advance on the system clock and are out
+  // of phase with beam_x/beam_y (producing duplicated / shifted output).
   video_source vs (
-      .pixel_clk(clk),
+      .pixel_clk(ce_pix),
       .pixel_rst_n(~reset),
       .res_sel(res_sel),
       .pattern_sel(pattern_sel),
       .h_sync(HSync),
       .v_sync(VSync),
-      .de(ce_pix),
+      .de(de),
       .beam_x(beam_x),
       .beam_y(beam_y),
       .frame_start(frame_start),
