@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 // ============================================================================
-// File: video_timing_signals.sv
+// File: video_timing_signals_registered.sv
 // Description: Multi-resolution VESA/CEA video timing signals generator.
 // ============================================================================
-module video_timing_signals (
+module video_timing_signals_registered (
     input  logic                               pixel_clk,
     input  logic                               pixel_rst_n,   // synchronized to pixel_clk
     input  logic [                        1:0] res_sel,
@@ -28,30 +28,45 @@ module video_timing_signals (
   assign h_total = cfg.h_res + cfg.h_fp + cfg.h_sync + cfg.h_bp;
   assign v_total = cfg.v_res + cfg.v_fp + cfg.v_sync + cfg.v_bp;
 
-  assign frame_start = (beam_y == v_total - 1) && (beam_x == h_total - 1);
-  assign line_start = (beam_x == h_total - 1);
-  assign beam_at_zero = (beam_x == 0) && (beam_y == 0);
-  assign h_blank = beam_x < cfg.h_res ? 0 : 1;  // unsigned, no need for lower bounds-check
-  assign v_blank = beam_y < cfg.v_res ? 0 : 1;
-  assign h_sync = (beam_x >= (cfg.h_res + cfg.h_fp)) &&
-                (beam_x < (cfg.h_res + cfg.h_fp + cfg.h_sync)) ?
-                cfg.h_pol : !cfg.h_pol;
-  assign v_sync = (beam_y >= (cfg.v_res + cfg.v_fp)) &&
-                (beam_y < (cfg.v_res + cfg.v_fp + cfg.v_sync)) ?
-                cfg.v_pol : !cfg.v_pol;
-  assign de = (beam_x < cfg.h_res) && (beam_y < cfg.v_res);
-
+  // update pixel position counters and emit registered signals
+  logic [globals_pkg::COORD_BITS-1:0] hc, vc;
   always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (!pixel_rst_n) begin
-      beam_x <= h_total;
-      beam_y <= v_total;
+      hc <= 0;
+      vc <= 0;
+      beam_x <= 0;
+      beam_y <= 0;
+      de <= 0;
+      frame_start <= 0;
+      line_start <= 0;
+      beam_at_zero <= 0;
+      h_blank <= 0;
+      v_blank <= 0;
+      h_sync <= cfg.h_pol ? 0 : 1;
+      v_sync <= cfg.v_pol ? 0 : 1;
     end else begin
-      if (beam_x >= h_total - 1) begin
-        beam_x <= 0;
-        if (beam_y >= v_total - 1) beam_y <= 0;
-        else beam_y <= beam_y + 1;
+      // emit the signal for the current clock position
+      de <= (hc < cfg.h_res) && (vc < cfg.v_res);
+      frame_start <= (vc == v_total - 1) && (hc == h_total - 1);
+      line_start <= (hc == h_total - 1);
+      beam_at_zero <= (hc == 0) && (vc == 0);
+      h_blank <= hc < cfg.h_res ? 0 : 1;  // unsigned, no need for lower bounds-check
+      v_blank <= vc < cfg.v_res ? 0 : 1;
+      h_sync <= (hc >= (cfg.h_res + cfg.h_fp)) &&
+                (hc < (cfg.h_res + cfg.h_fp + cfg.h_sync)) ?
+                cfg.h_pol : !cfg.h_pol;
+      v_sync <= (vc >= (cfg.v_res + cfg.v_fp)) &&
+                (vc < (cfg.v_res + cfg.v_fp + cfg.v_sync)) ?
+                cfg.v_pol : !cfg.v_pol;
+      beam_x <= hc;
+      beam_y <= vc;
+
+      // advance to the next beam position
+      if (hc >= h_total - 1) begin
+        hc <= 0;
+        vc <= (vc >= v_total - 1) ? 0 : vc + 1;
       end else begin
-        beam_x <= beam_x + 1;
+        hc <= hc + 1;
       end
     end
   end

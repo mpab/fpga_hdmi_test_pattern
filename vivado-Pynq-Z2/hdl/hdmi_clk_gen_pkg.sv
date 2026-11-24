@@ -5,7 +5,6 @@
 // ============================================================================
 package hdmi_clk_gen_pkg;
   import globals_pkg::*;
-  import video_timing_signals_pkg::*;
   typedef struct packed {
     logic [15:0] clkfb_reg1;  // Addr 0x14: CLKFBOUT ClkReg1 (M)
     logic [15:0] clkfb_reg2;  // Addr 0x15: CLKFBOUT ClkReg2 (M)
@@ -16,18 +15,58 @@ package hdmi_clk_gen_pkg;
   } mmcm_drp_cfg_t;
 
   // Precomputed per Xilinx XAPP888 (DIVCLK_DIVIDE = 5 fixed across all modes -> PFD = 25 MHz)
+  // One register set per enum index, indexed directly by the RES_* values in globals_pkg.sv.
+  localparam mmcm_drp_cfg_t MMCM_DRP_CFG[4] = {
+    // RES_640x480_60 = 2'd0
+    // Mode 0: M=40 (VCO=1000MHz), O0=8 (125MHz), O1=40 (25MHz)
+    '{
+        16'h0514,
+        16'h0000,
+        16'h0104,
+        16'h0000,
+        16'h0514,
+        16'h0000
+    },
+    // RES_800x600_60 = RES_DEFAULT = 2'd1
+    // Mode 1: M=40 (VCO=1000MHz), O0=5 (200MHz), O1=25 (40MHz)
+    '{
+        16'h0514,
+        16'h0000,
+        16'h0083,
+        16'h0080,
+        16'h030D,
+        16'h0080
+    },
+    // RES_1024x768_60 = 2'd2
+    // Mode 2: M=39 (VCO=975MHz),  O0=3 (325MHz), O1=15 (65MHz)
+    '{
+        16'h04D4,
+        16'h0080,
+        16'h0042,
+        16'h0080,
+        16'h01C8,
+        16'h0080
+    },
+    // RES_1280x720_60 = 2'd3
+    // Mode 3: M=30 (VCO=750MHz), O0=2 (375MHz), O1=10 (75MHz)
+    '{
+        16'h03CF,
+        16'h0000,
+        16'h0041,
+        16'h0000,
+        16'h0145,
+        16'h0000
+    }
+  };
+  // NOTE: RES_1920x1080_30 == RES_1280x720_60
+
   function automatic mmcm_drp_cfg_t get_mmcm_cfg(input logic [1:0] mode);
     case (mode)
-      // Mode 0: M=40 (VCO=1000MHz), O0=8 (125MHz), O1=40 (25MHz)
-      RES_640x480_60: return '{16'h0514, 16'h0000, 16'h0104, 16'h0000, 16'h0514, 16'h0000};
-      // Mode 1: M=40 (VCO=1000MHz), O0=5 (200MHz), O1=25 (40MHz)
-      RES_800x600_60: return '{16'h0514, 16'h0000, 16'h0083, 16'h0080, 16'h030D, 16'h0080};
-      // Mode 2: M=39 (VCO=975MHz),  O0=3 (325MHz), O1=15 (65MHz)
-      RES_1024x768_60: return '{16'h04D4, 16'h0080, 16'h0042, 16'h0080, 16'h01C8, 16'h0080};
-      // Mode 3: M=30 (VCO=750MHz), O0=2 (375MHz), O1=10 (75MHz)
-      RES_1280x720_60: return '{16'h03CF, 16'h0000, 16'h0041, 16'h0000, 16'h0145, 16'h0000};
-      // NOTE: RES_1920x1080_30 == RES_1280x720_60
-      default:  /* 800x600 */ return '{16'h0514, 16'h0000, 16'h0083, 16'h0080, 16'h030D, 16'h0080};
+      RES_640x480_60:  return MMCM_DRP_CFG[RES_640x480_60];
+      RES_800x600_60:  return MMCM_DRP_CFG[RES_800x600_60];
+      RES_1024x768_60: return MMCM_DRP_CFG[RES_1024x768_60];
+      RES_1280x720_60: return MMCM_DRP_CFG[RES_1280x720_60];
+      default:         return MMCM_DRP_CFG[RES_DEFAULT];  // common index from globals_pkg.sv
     endcase
   endfunction
 

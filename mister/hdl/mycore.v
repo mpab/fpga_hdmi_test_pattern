@@ -44,7 +44,7 @@ module mycore (
     pattern_sel <= pattern_sel ? 0 : 1;
   end
 
-  video_timing_signals vts (
+  video_timing_signals_comb vts (
       .pixel_clk(ce_pix),
       .pixel_rst_n(~reset),
       .res_sel(res_sel),

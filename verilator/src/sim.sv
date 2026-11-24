@@ -3,10 +3,7 @@
 // File: sim.sv
 // Description: Proxy for video source(s)
 // ============================================================================
-module sim
-  import globals_pkg::*;
-  import video_timing_signals_pkg::*;
-(
+module sim (
     // board I/O
     input  wire [1:0] sw,
     input  wire [3:0] btn,
@@ -34,7 +31,10 @@ module sim
     output logic [COORD_BITS-1:0] h_total,
     output logic [COORD_BITS-1:0] v_total
 );
-  // one-hot button/LED patterns
+  import globals_pkg::*;
+  import video_timing_signals_pkg::*;
+
+  // one-hot button/resolution select
   localparam BOFF = 4'b0000;
   localparam B0   = 4'b0001;
   localparam B1   = 4'b0010;
@@ -73,7 +73,7 @@ module sim
   assign v_total = cfg.v_res + cfg.v_fp + cfg.v_sync + cfg.v_bp;
 
   video_timing_signals_pkg::video_timing_t cfg;
-  video_timing_signals vts (.*);
+  video_timing_signals_comb vts (.*);
   assign cfg   = get_video_timing(res_sel);
   assign red   = rgb_data[3*COLOR_BITS-1:2*COLOR_BITS];
   assign green = rgb_data[2*COLOR_BITS-1:COLOR_BITS];
