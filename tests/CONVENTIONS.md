@@ -31,9 +31,10 @@ The test harness components live in:
 tests/$PROJ/src/
 ```
 
-At least two files should be present:
+Test harness source files use the `test` stem consistently:
 
 ```text
+tests/$PROJ/src/test.py
 tests/$PROJ/src/test.cpp
 tests/$PROJ/src/test.sv
 ```
@@ -41,11 +42,12 @@ tests/$PROJ/src/test.sv
 or, for Verilog:
 
 ```text
+tests/$PROJ/src/test.py
 tests/$PROJ/src/test.cpp
 tests/$PROJ/src/test.v
 ```
 
-`test.cpp` is the C++ test runner. `test.sv` / `test.v` is the HDL test wrapper.
+`test.cpp` is the C++ forwarding runner. `test.sv` / `test.v` is the HDL test wrapper. `test.py` is the Python validation driver.
 
 ## Wrapper/Proxy pattern
 
@@ -108,7 +110,7 @@ video_timing_signals_registered vts (
 
 Explicit mappings are appropriate for cross-domain adapters such as `beam_at_zero` to `hvcnt_atzero`. They should not be the default when the names already match.
 
-The explicit style in `tests/hdl/src/test.sv` is used because that wrapper adapts different domain names/ports; it is not a general rule that all wrappers should list every port explicitly.
+`tests/hdl/src/test.sv` uses implicit `.*` matching for both wrapped modules because their port names and types match the wrapper ports. Explicit mapping is reserved for cross-domain adapters.
 
 ## C++ test runners
 
@@ -139,6 +141,59 @@ hw.rootp->test__DOT__u_mycore__DOT__beam_x
 
 Use wrapper outputs where possible. If an internal value is needed, document it as test-only diagnostic access.
 
+## Configuration-driven test validation
+
+The test harness separates model driving from test validation.
+
+The HDL wrapper, such as `tests/$PROJ/src/test.sv`, wraps the application module and exposes the wrapper ports. It does not contain test data or expected values.
+
+The C++ runner, such as `tests/$PROJ/src/test.cpp`, is a thin forwarding driver. It:
+
+- Sets wrapper inputs from command-line arguments such as `--res`, `--pattern`, and `--ticks`.
+- Calls `hw.eval()` to advance the wrapper model.
+- Prints raw model output rows in a fixed field order.
+- Optionally prints the reset state with `--reset`.
+
+The C++ runner does not load expected data, decide PASS/FAIL, or contain test policy.
+
+The Python driver, such as `tests/$PROJ/src/test.py`, owns the test configuration and validation. It:
+
+- Loads expected configuration from CSV files under `tests/$PROJ/test_data/`.
+- Groups sample rows by resolution and pattern, e.g. `(res_sel, pattern_sel)`.
+- Invokes `test.exe` with the required tick list for each group.
+- Compares the returned model fields against the expected fields.
+- Checks reset-state rows separately.
+- Prints detailed mismatches and a final `PASS` or `FAIL` line.
+- Returns a non-zero exit status when validation fails.
+- Writes a Markdown results report to `out/tests/$PROJ/results.md`.
+
+Expected test data belongs in configuration files, not inside the HDL wrapper or C++ runner:
+
+```text
+tests/$PROJ/test_data/expected_samples.csv
+tests/$PROJ/test_data/expected_reset.csv
+```
+
+These CSV files are source configuration, not generated build artifacts. Each sample should include the selector values, the tick, and the wrapper output fields being checked. A useful sample set is about ten ticks per `(res_sel, pattern_sel)` combination, including signal transition ticks and at least one pattern-specific tick.
+
+The separation of responsibilities is deliberate:
+
+- HDL defines the model and wrapper ports.
+- C++ drives the wrapper and emits raw output.
+- Python handles file loading, CSV comparison, grouping, reporting, and exit status.
+
+This keeps validation logic in a language suited to CSV and file manipulation, while the C++ runner remains focused on the Verilated model interface.
+
+Review criteria:
+
+- `test.cpp` should not contain expected values or PASS/FAIL policy.
+- `test.py` should be the sole validation authority.
+- Expected CSV files should be grouped consistently by resolution and pattern.
+- Tick order should be deterministic.
+- Reset checks should compare the intentional reset-state outputs.
+- The Makefile `run` target should invoke the Python driver, not only the executable.
+- Generated build artifacts should remain under `out/tests/$PROJ`.
+
 ## Makefile contract
 
 A test Makefile should capture its paths from `env.mk` and its own location.
@@ -154,6 +209,7 @@ TEST_SLUG := $(shell basename $(abspath $(dir $(MAKEFILE_LIST))))
 TESTS_OUT_PDIR := $(MB_APP_OUT_PDIR)/tests
 OBJ_DIR := $(TESTS_OUT_PDIR)/$(TEST_SLUG)
 TEST_SRC_PATH := $(TEST_PATH)src/
+TEST_DATA_PATH := $(TEST_PATH)test_data/
 ```
 
 The Makefile should provide targets such as:
@@ -166,13 +222,19 @@ clean:
     rm -rf $(OBJ_DIR)
 
 run: test
-    $(OBJ_DIR)/test.exe
+    python3 $(TEST_SRC_PATH)test.py $(TEST_DATA_PATH)
 ```
 
 The generated executable is:
 
 ```text
 out/tests/$PROJ/test.exe
+```
+
+The Python driver also writes a Markdown results report:
+
+```text
+out/tests/$PROJ/results.md
 ```
 
 ## Build commands
@@ -201,6 +263,13 @@ or directly:
 
 ```sh
 out/tests/mister/test.exe
+```
+
+The direct executable prints raw model output. It does not load expected configuration or perform PASS/FAIL validation. Use the `run` target for validation:
+
+```sh
+make -C tests/hdl run
+make -C tests/mister run
 ```
 
 ## SystemVerilog versus Verilog

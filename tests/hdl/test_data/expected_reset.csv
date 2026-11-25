@@ -1,0 +1,5 @@
+res_sel,beam_x,beam_y,h_sync,v_sync,h_blank,v_blank,de,frame_start,line_start,beam_at_zero
+0,0,0,0,0,1,1,0,0,0,1
+1,0,0,1,1,1,1,0,0,0,1
+2,0,0,0,0,1,1,0,0,0,1
+3,0,0,1,1,1,1,0,0,0,1
