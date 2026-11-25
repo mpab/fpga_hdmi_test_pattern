@@ -29,10 +29,36 @@ package video_timing_pkg;
   // One record per resolution. Quartus rejects an unpacked array of packed structs
   // initialized with struct literals, so use separate scalar localparam records.
   // The final two fields are 0,0 placeholders; get_video_timing() fills h_total/v_total.
-  localparam video_timing_t VIDEO_640x480_60  = '{640, 16, 96, 48, 1'b0, 480, 10, 2, 33, 1'b0, 0, 0};
-  localparam video_timing_t VIDEO_800x600_60  = '{800, 40, 128, 88, 1'b1, 600, 1, 4, 23, 1'b1, 0, 0};
-  localparam video_timing_t VIDEO_1024x768_60 = '{1024, 24, 136, 160, 1'b0, 768, 3, 6, 29, 1'b0, 0, 0};
-  localparam video_timing_t VIDEO_1280x720_60 = '{1280, 110, 40, 220, 1'b1, 720, 5, 5, 20, 1'b1, 0, 0};
+  localparam video_timing_t VIDEO_640x480_60 = '{640, 16, 96, 48, 1'b0, 480, 10, 2, 33, 1'b0, 0, 0};
+  localparam video_timing_t VIDEO_800x600_60 = '{800, 40, 128, 88, 1'b1, 600, 1, 4, 23, 1'b1, 0, 0};
+  localparam video_timing_t VIDEO_1024x768_60 = '{
+      1024,
+      24,
+      136,
+      160,
+      1'b0,
+      768,
+      3,
+      6,
+      29,
+      1'b0,
+      0,
+      0
+  };
+  localparam video_timing_t VIDEO_1280x720_60 = '{
+      1280,
+      110,
+      40,
+      220,
+      1'b1,
+      720,
+      5,
+      5,
+      20,
+      1'b1,
+      0,
+      0
+  };
   // Can be extended - e.g.
   // RES_1920x1080_30 '{1920, 88, 44, 148, 1'b1, 1080, 4, 5, 36, 1'b1};
 

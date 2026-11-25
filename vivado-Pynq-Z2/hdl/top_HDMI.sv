@@ -20,12 +20,8 @@ module top_hdmi (
   logic pixel_clk, tmds_clk;
 
   hdmi_clk_gen u_clk_gen (
-      .sys_clk_125m(sys_clk),
-      .sys_rst_n   (sys_rst_n),
-      .res_sel     (res_sel),
-      .pixel_clk   (pixel_clk),
-      .tmds_clk    (tmds_clk),
-      .clk_locked  (clk_locked)
+    .*,
+      .sys_clk_125m(sys_clk)
   );
 
   // Synchronous Reset Bridge into pixel_clk domain (CRITICAL for OSERDESE2)
@@ -41,24 +37,15 @@ module top_hdmi (
   assign pixel_rst_n = rst_sync_chain[2];
   assign serdes_rst  = ~rst_sync_chain[2];  // Active-high synchronous release
 
-  // Video Timing
-  logic h_sync, v_sync, de;
+  // Video timing signals (de, beam_x, beam_y, ...)
+  logic h_sync, v_sync, h_blank, v_blank, de;
   logic [11:0] beam_x, beam_y;
+  logic beam_at_zero;
+  logic frame_start, line_start;
+  video_timing_signals_registered vts (.*);
+
   logic [23:0] rgb_data;
-
-  video_timing_signals_registered vts (
-      .pixel_clk  (pixel_clk),
-      .pixel_rst_n(pixel_rst_n),
-      .res_sel    (res_sel),
-      .h_sync     (h_sync),
-      .v_sync     (v_sync),
-      .de         (de),
-      .beam_x     (beam_x),
-      .beam_y     (beam_y)
-  );
-
   // Pattern Generator(s)
-  logic frame_start, line_start;  // unused
   video_source vs (.*);
 
   // 4. Three Parallel RGB 8b/10b TMDS Encoders

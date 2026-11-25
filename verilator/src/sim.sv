@@ -37,6 +37,7 @@ module sim (
   assign red   = rgb_data[3*COLOR_BITS-1:2*COLOR_BITS];
   assign green = rgb_data[2*COLOR_BITS-1:COLOR_BITS];
   assign blue  = rgb_data[COLOR_BITS-1:0];
+  logic [1:0] res_sel;
   video_timing_pkg::video_timing_t cfg;
   assign cfg = get_video_timing(res_sel);
   assign h_res = cfg.h_res;
@@ -54,7 +55,6 @@ module sim (
   reg [3:0] btn_latch;
   assign led = btn_latch;
   // one-hot to resolution selection
-  logic [1:0] res_sel;
   // button press handler
   always @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (~pixel_rst_n) begin

@@ -28,6 +28,8 @@ module video_timing_signals_registered (
   logic [globals_pkg::COORD_BITS-1:0] hc, vc;
   always_ff @(posedge pixel_clk or negedge pixel_rst_n) begin
     if (!pixel_rst_n) begin
+      // Reset defaults: counters and beam coordinates go to zero;
+      // display enable and frame/line starts are cleared.
       hc <= 0;
       vc <= 0;
       beam_x <= 0;
@@ -35,13 +37,14 @@ module video_timing_signals_registered (
       de <= 0;
       frame_start <= 0;
       line_start <= 0;
-      // reset is active, counters are at zero
-      // and beam_at_zero is true
+      // Reset is a special blanking/control state, not normal beam-position logic:
+      // HBlank/VBlank are asserted true and HSync/VSync are held at active polarity.
+      // This intentionally overrides the normal-position formulas for beam (0,0).
       beam_at_zero <= 1;
-      h_blank <= 0;
-      v_blank <= 0;
-      h_sync <= cfg.h_pol ? 0 : 1;
-      v_sync <= cfg.v_pol ? 0 : 1;
+      h_blank <= 1;
+      v_blank <= 1;
+      h_sync <= cfg.h_pol;
+      v_sync <= cfg.v_pol;
     end else begin
       // emit the signal for the current clock position
       de <= (hc < cfg.h_res) && (vc < cfg.v_res);
