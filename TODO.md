@@ -16,10 +16,10 @@
   - [x] Support mister target
   - [x] Support scp to MiSTer target
 - Testing
-- [x] ./hdl: Implement basic test runner
-- [x] ./hdl: support test configuration
-- [x] ./hdl: support test reports (markdown)
-- [x] ./mister: Implement basic test runner
+  - [x] ./hdl: Implement basic test runner
+  - [x] ./hdl: support test configuration
+  - [x] ./hdl: support test reports (markdown)
+  - [x] ./mister: Implement basic test runner
 
 ## Maybe
 
@@ -30,6 +30,11 @@
   - [ ] Detect display resolution
 - Gowin
   - [ ] Support Tang Nano 20K
+- Add pre check-in hooks
+  - [ ] formatting
+  - [ ] code review
+  - [ ] linting
+  - [ ] tests
 
 ## Todo
 
