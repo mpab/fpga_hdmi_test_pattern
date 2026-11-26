@@ -12,6 +12,7 @@
   - [x] Support PYNQ overlay
   - [x] Scope output by xilinx version - e.g. vitis_20232
   - [x] Support scp to Xilinx PYNQ target
+  - [x] Reinstate bitstream programming
 - MiSTer
   - [x] Support mister target
   - [x] Support scp to MiSTer target
@@ -22,20 +23,18 @@
   - [x] ./mister: Implement basic test runner
   - [x] ./mister: support test configuration
   - [x] ./mister: support test reports (markdown)
+- Add pre-commit hook
+  - [x] formatting
+  - [x] linting
+  - [x] tests
 
 ## Maybe
 
 - Xilinx
-  - [x] Reinstate bitstream programming
   - [ ] Support multiple Xilinx platforms (Pynq-Z2, Z-turn, ...)
 - MiSTer
   - [ ] Detect display resolution
 - Gowin
   - [ ] Support Tang Nano 20K
-- Add pre check-in hooks
-  - [ ] formatting
-  - [ ] code review
-  - [ ] linting
-  - [ ] tests
 
 ## Todo
