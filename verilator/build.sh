@@ -6,6 +6,7 @@ if [ "$MB_VERILATOR_BUILD_OPT" = "cmake" ]; then
   cmake -GNinja -S . -B "$MB_VERILATOR_OUT_PATH" -DCMAKE_BUILD_TYPE=Release
   cmake --build "$MB_VERILATOR_OUT_PATH"
 elif [ "${MB_VERILATOR_BUILD_OPT}" = "make" ]; then
+  mkdir -p "${MB_APP_OUT_PDIR}"
   cd "${MB_APP_OUT_PDIR}" || exit
   make -f "${MB_VERILATOR_CFG_PATH}Makefile"
 else
